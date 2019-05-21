@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index!{% endblock %}
+
+{% block body %}
+<div>
+    <div>
+        {% for post in posts %}
+            <article>
+                <h2>
+                    <a href="{{ path('post_show', {id: post.id}) }}">
+                        {{ post.title }}
+                    </a>
+                </h2>
+                <p>
+                    <span>{{ post.publishedAt }}</span>
+                    <span>{{ post.author.fullname }}
+                </p>
+                <p>{{ post.content }}</p>
+                {{ include('index/_post_tags.html.twig') }}
+            </article>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

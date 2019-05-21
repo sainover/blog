@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <div>
+            <a href="{{ path('index') }}">Home</a>|
+        {% if is_granted('IS_AUTHENTIFICATION_REMEBERED') %}
+            <a href="{{ path('index') }}">Logout</a>
+        {% else %}
+            <a href="{{ path('app_login') }}">SignIn</a>
+        {% endif %}
+        </div> 
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
