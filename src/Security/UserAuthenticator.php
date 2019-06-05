@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -76,7 +77,13 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
+        if (!empty($user->getToken())) {
+            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Пожалуйста, подтвердите свой email.');
+        } elseif (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
+            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Неверный пароль.');
+        }
+
+        return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -86,6 +93,13 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
         }
 
         return new RedirectResponse($this->urlGenerator->generate('index'));
+    }
+
+    public function onAuthenticationFailure(Request $request, \Symfony\Component\Security\Core\Exception\AuthenticationException $exception)
+    {
+        $session = new Session();
+        $session->getFlashBag()->add('warning', $exception->getMessage());
+        return new RedirectResponse($this->getLoginurl());
     }
 
     protected function getLoginUrl()

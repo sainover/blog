@@ -1,0 +1,21 @@
+.autocomplete_options {
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid gray;
+    margin: 0;
+    padding: 0;
+}
+
+.autocomplete_options > li {
+    background: inherit;
+    margin: 0;
+    padding: 0;
+    border: inherit;
+    list-style-type: none;
+    width: inherit;
+    height: inherit;
+}
+
+.autocomplete_options .focus {
+    background: gray;
+}

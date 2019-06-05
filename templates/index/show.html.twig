@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block body %}
+<article id="{{ article.id }}">
+    <h1>{{ article.title }}</h1>
+    {{ include('includes/_article_tags.html.twig') }}
+    <span>
+        {{ article.content|raw }}
+    </span>
+    <div>
+        <span>Author: {{ article.author.fullName }}</span>
+        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+        {{ include('index/_article_regard.html.twig') }}
+        <hr>
+        <div>
+            <h2>Comments:</h2>
+            {% for comment in article.comments %}
+                <div>
+                    <span>Author: {{ comment.author.fullName }}</span>
+                    <span>{{ comment.content }}
+                </div>
+            {% endfor %}
+            <div>
+                {{ form(form) }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

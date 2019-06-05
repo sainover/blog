@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}Welcome!{% endblock %}</title>
+	{% block stylesheets %}
+		<link href="{{ asset('css/bootstrap.min.css') }}" rel='stylesheet' type='text/css'>
+		<link href="{{ asset('css/autocomplete.css') }}" rel='stylesheet' type='text/css'>
+	{% endblock %}
+</head>
+<body>
+	<div class="container">
+	{{ include('admin/menu.html.twig') }}
+	{% block body %}{% endblock %}
+	</div>
+
+	{% block javascripts %}
+	<script src="{{ asset('js/jquery-3.4.1.min.js') }}"></script>
+	<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="https://unpkg.com/ionicons@4.5.5/dist/ionicons.js"></script>
+    
+    <script type="text/javascript">
+        $('input.autocomplete_input').after(`<ul class="autocomplete_options"></ul>`);
+        let idx = -1;
+        let query = '';
+        
+        $('input.autocomplete_input').on('input', function(e) {
+            $.ajax({
+                type: 'GET',
+                url: `/admin/users/emails/?query=${query}`,
+                datatype: 'json',
+            }).done(data => {
+
+                const $list = $('.autocomplete_options');
+
+                query = $(this).val();
+                const height = $(this).css('height');
+                const width = $(this).css('width');
+
+                $list.css('height', height);
+                $list.css('top', height);
+                $list.css('width', width);
+
+                $list.empty();
+                if (data.length == 0) {
+                    $list.append(`<li>Emails not found</li>`);
+                } else {
+                    data.forEach(element => {
+                        $list.append(`<li>${element}</li>`);
+                    });
+                }
+            });
+        });
+
+        $('.autocomplete_input').on('focusout', e => {
+            $('.autocomplete_options').css('display', 'none');
+        });
+
+        $('.autocomplete_input').on('focus', e => {
+            $('.autocomplete_options').css('display', 'block');
+        });
+
+        $('.autocomplete_input').on('keyup keypress', e => {
+            const lis = $('.autocomplete_options').children();
+            switch(event.keyCode) {
+                case 40:
+                    idx++
+                    break;
+                case 38:
+                    idx--;
+                    break;
+            };
+            if ([40, 38].indexOf(event.keyCode) != -1) {
+                if (idx >= lis.length) {
+                    idx = -1;
+                } else if (idx < -1) {
+                    lis = lis.length - 1;
+                }
+                if (idx == -1) {
+                    $('.autocomplete_input').val(query);
+                } else {
+                    $('.autocomplete_input').val(lis[idx].innerHTML);
+                }
+            }
+        });
+
+    </script>
+
+    {% endblock %}
+</body>
+</html>

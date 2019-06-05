@@ -1,0 +1,11 @@
+{{ form_start(form) }}
+    {{ form_widget(form.title, {'attr': {'class': 'form-control mt-3', 'placeholder': 'Header text input'}}) }}
+    {{ form_widget(form.tags, {
+        'attr': {
+            'class': 'tags form-control mt-3 mb-3', 
+            'data-placeholder': 'Add some tags',
+        }
+    }) }}
+    {{ form_widget(form.content) }}
+    <button class="btn btn-primary mt-3">{{ button_label|default('Create') }}</button>
+{{ form_end(form) }}

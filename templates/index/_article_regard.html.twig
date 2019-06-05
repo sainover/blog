@@ -1,0 +1,9 @@
+<span>
+    <a href="#" onclick="toggleLike({{ article.id }}, true)">
+        <ion-icon name="arrow-round-up"></ion-icon>
+    </a>
+    <span id="article{{ article.id }}_rating">{{ article.rating }}</span>
+    <a href="#" onclick="toggleDislike({{ article.id }}, false)">
+        <ion-icon name="arrow-round-down"></ion-icon>
+    </a>
+</span>

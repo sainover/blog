@@ -2,90 +2,104 @@
 
 namespace App\Controller;
 
-use App\Entity\Post;
-use App\Service\BlogService;
-use App\Repository\PostRepository;
+use App\Entity\Article;
+use App\Entity\Regard;
+use App\Service\ArticleService;
+use App\Repository\TagRepository;
+use App\Security\Voter\ArticleVoter;
+use App\Form\ArticleType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
- * @Route("/user/post")
+ * @Route("/user/article")
  */
 class UserController extends AbstractController
 {
-    private $blogService;
+    private $articleService;
 
-    public function __contruct(BlogService $blogService)
+    public function __construct(ArticleService $articleService)
     {
-        $this->blogService = $blogService;
+        $this->articleService = $articleService;
     }
 
     /**
-     * @Route("/", name="user_post_index")
+     * @Route("/", name="user_article_index", methods={"GET"})
      */
-    public function userPostIndex(PostRepository $post)
+    public function userArticleIndex()
     {
-        $authorPosts = $this->blogService->getAuthorPosts($this->getUser);
+        $user = $this->getUser();
+        $authorArticles = $this->articleService->getAuthorArticles($user);
 
         return $this->render('user/index.html.twig', [
-            'posts' => $authorPosts
+            'user' => $user,
+            'articles' => $authorArticles
         ]);
     }
 
     /**
-     * @Route("/new", name="user_post_new", methods={"POST"})
+     * @Route("/new", name="user_article_new", methods={"GET", "POST"})
      */
-    public function userPostNew(Request $request)
+    public function userArticleNew(Request $request)
     {
-        $form = $this->createForm(PostType::class);
+        $article = new Article;
+        $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->blogService->createPost(
-                $form->get('title'),
-                $form->get('content'),
-                $this->getUser(),
-                $form->get('tags')
-            );
+            $this->articleService->createArticle($article);
+            return $this->redirectToRoute('user_article_index');
         }
 
-        return $this->redirectToRoute('user_post_index');
+        return $this->render('user/article/new.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     /**
-     * @Route("/{id}/edit", name="user_post_edit", methods={"PUT"})
+     * @Route("/{id}/edit", name="user_article_edit", methods={"GET", "POST"})
      */
-    public function userEditPost(Post $post, Request $request)
+    public function userArticleEdit(Article $article, Request $request): Response
     {
-        $form = $this->createForm(PostType::class, $post);
+        $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
+
+        $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->blogService->updatePost(
-                $post,
-                $form->get('title'),
-                $form->get('content'),
-                $this->getUser(),
-                $form->get('tags')
-            );
-
-            return $this->redirectToRoute('user_post_index');
+            $this->articleService->updateArticle($article);
+            return $this->redirectToRoute('user_article_index');
         }
 
-        return $this->render('user/edit.html.twig', [
+        return $this->render('user/article/edit.html.twig', [
             'form'=> $form->createView()
         ]);
     }
 
     /**
-     * @Route("/{id}", name="user_post_delete", methods={"DELETE"})
+     * @Route("/{id}", name="user_article_delete", methods={"DELETE"})
      */
-    public function userDeletePost(Request $request, Post $post): Response
+    public function userArticleDelete(Request $request, Article $article): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->request->get('_token'))) {
-            $this->blogService->deletePost($post, $request);
-            return $this->redirectToRoute("user_post_index");
+        $this->denyAccessUnlessGranted(ArticleVoter::DELETE, $article);
+
+        if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
+            $this->articleService->deleteArticle($article);
+            return $this->redirectToRoute("user_article_index");
         }
+    }
+
+    /**
+     * @Route("/{id}/publish", name="publish", methods={"GET", "POST"})
+     */
+    public function userArticleSendToModeration(Article $article): Response
+    {
+        $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
+
+        $this->articleService->sendToModeration($article);
+        return $this->redirectToRoute("user_article_index");
     }
 }

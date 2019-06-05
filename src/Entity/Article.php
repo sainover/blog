@@ -7,22 +7,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
  */
-class Post
+class Article
 {
+    public const COUNT_ON_PAGE = 10;
+
+    public const STATUS_DRAFT = 'Draft';
+    public const STATUS_MODERATION = 'On moderation';
+    public const STATUS_PUBLISHED = 'Published';
+    public const STATUS_DECLINED= 'Declined';
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
     private $id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $author;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -35,7 +36,7 @@ class Post
     private $content;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="post", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="target", orphanRemoval=true)
      */
     private $comments;
 
@@ -45,7 +46,7 @@ class Post
     private $title;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", inversedBy="posts")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", inversedBy="articles", cascade={"persist"})
      */
     private $tags;
 
@@ -54,27 +55,32 @@ class Post
      */
     private $rating;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="articles")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $author;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Regard", mappedBy="target", orphanRemoval=true)
+     */
+    private $regards;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->regards = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getAuthor(): ?User
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(?User $author): self
-    {
-        $this->author = $author;
-
-        return $this;
     }
 
     public function getPublishedAt(): ?\DateTimeInterface
@@ -113,7 +119,7 @@ class Post
     {
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
-            $comment->setPost($this);
+            $comment->setArticle($this);
         }
 
         return $this;
@@ -124,8 +130,8 @@ class Post
         if ($this->comments->contains($comment)) {
             $this->comments->removeElement($comment);
             // set the owning side to null (unless already changed)
-            if ($comment->getPost() === $this) {
-                $comment->setPost(null);
+            if ($comment->getArticle() === $this) {
+                $comment->setArticle(null);
             }
         }
 
@@ -152,13 +158,13 @@ class Post
         return $this->tags;
     }
 
-    public function addTag(Tag $tag): self
+    public function addTag(Tag ...$tags): void
     {
-        if (!$this->tags->contains($tag)) {
-            $this->tags[] = $tag;
+        foreach($tags as $tag) {
+            if (!$this->tags->contains($tag)) {
+                $this->tags->add($tag);
+            }
         }
-
-        return $this;
     }
 
     public function removeTag(Tag $tag): self
@@ -178,6 +184,61 @@ class Post
     public function setRating(int $rating): self
     {
         $this->rating = $rating;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(?User $author): self
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Regard[]
+     */
+    public function getRegards(): Collection
+    {
+        return $this->regards;
+    }
+
+    public function addRegard(Regard $regard): self
+    {
+        if (!$this->regards->contains($regard)) {
+            $this->regards[] = $regard;
+            $regard->setArticle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRegard(Regard $regard): self
+    {
+        if ($this->regards->contains($regard)) {
+            $this->regards->removeElement($regard);
+            // set the owning side to null (unless already changed)
+            if ($regard->getArticle() === $this) {
+                $regard->setArticle(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Change article!{% endblock %}
+
+{% block body %}
+    {{ include('user/article/_form.html.twig', {'button_label': 'Save'}) }}
+{% endblock %}
