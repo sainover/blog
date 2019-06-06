@@ -1,0 +1,59 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Index!{% endblock %}
+
+{% block body %}
+{{ include('admin/article/_form_search.html.twig') }}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Author</th>
+      <th>Header</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for article in articles %}
+    <tr>
+      <td>{{ article.publishedAt|date("m-d-Y") }}</td>
+      <td>{{ article.author.email }}</td>
+      <td>{{ article.title }}</td>
+      <td>{{ article.status }}</td>
+      <td>
+        <a href="{{ path('admin_article_edit', {id: article.id}) }}">Edit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div class="row justify-content-end mt-3">
+  <nav class="col">
+    <ul class="pagination justify-content-end">
+      <li class="page-item" {{ thisPage == 1 ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('admin_articles', {
+          page: thisPage-1 < 1 ? 1 : thisPage-1,
+        }) }}">«</a>
+      </li>
+
+      {% for i in 1..maxPages %}
+      {% if i > 0 %}
+      <li class="page-item {{ thisPage == i ? 'active' }}" >
+        <a class="page-link" href="{{ path('admin_articles', {
+          page: i,
+        }) }}">{{ i }}</a>
+      </li>
+      {% endif %}
+      {% endfor %}
+
+      <li class="page-item" {{ thisPage == maxPages ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('admin_articles', {
+          page: thisPage+1 <= maxPages ? thisPage+1 : thisPage,
+        }) }}">»</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{% endblock %}

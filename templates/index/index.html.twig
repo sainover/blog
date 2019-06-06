@@ -4,22 +4,56 @@
 
 {% block body %}
 <div>
-    <div>
-        {% for post in posts %}
-            <article>
-                <h2>
-                    <a href="{{ path('post_show', {id: post.id}) }}">
-                        {{ post.title }}
-                    </a>
-                </h2>
-                <p>
-                    <span>{{ post.publishedAt }}</span>
-                    <span>{{ post.author.fullname }}
-                </p>
-                <p>{{ post.content }}</p>
-                {{ include('index/_post_tags.html.twig') }}
-            </article>
+  <div>
+    {% for article in articles %}
+      <div class="card mt-5">
+        <h5 class="card-header">{{ article.title }}</h5>
+        <div class="card-body">
+          {{ include('includes/_article_tags.html.twig') }}
+          <p class="card-text">{{ article.content|raw }}</p>
+        </div>
+        <div class="card-footer">
+          <span>
+            Author: <a href="#">{{ article.author.fullname }}</a>
+          </span>
+          {{ include('index/_article_regard.html.twig') }}
+          <span>Comments {{ article.comments|length }}</span>       
+          <a class="btn btn-light" href="{{ path('article_show', {'id' : article.id}) }}">Read more</a>       
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="row justify-content-end mt-3">
+    <nav class="col">
+      <ul class="pagination justify-content-end">
+        <li class="page-item" {{ thisPage == 1 ? 'class="disabled"' }}>
+          <a class="page-link" href="{{ path('index', {
+            page: thisPage-1 < 1 ? 1 : thisPage-1,
+            tag: app.request.get('tag')
+          }) }}">«</a>
+        </li>
+
+        {% for i in 1..maxPages %}
+        {% if i > 0 %}
+        <li class="page-item {{ thisPage == i ? 'active' }}" >
+          <a class="page-link" href="{{ path('index', {
+            page: i,
+            tag: app.request.get('tag')
+          }) }}">{{ i }}</a>
+        </li>
+        {% endif %}
         {% endfor %}
-    </div>
+
+        <li class="page-item" {{ thisPage == maxPages ? 'class="disabled"' }}>
+          <a class="page-link" href="{{ path('index', {
+            page: thisPage+1 <= maxPages ? thisPage+1 : thisPage,
+            tag: app.request.get('tag')
+          }) }}">»</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
 </div>
 {% endblock %}

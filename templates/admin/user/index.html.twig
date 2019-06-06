@@ -1,0 +1,83 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Index!{% endblock %}
+
+{% block body %}
+<div class="row justify-content-end">
+  <form class="col-6 mb-3 mt-3 autocomplete" action="{{ path('admin_users') }}" method="GET">
+    <div class="input-group" style="position: relative;">
+      <input type="text" class="form-contro autocomplete_input" autocomplete="off" name="query" placeholder="... Search by email ..." value="{{ app.request.get('query') }}">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Button</button>
+      </div>
+    </div>
+  </form>
+</div>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Id 
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'id', 'type' : 'ASC'}) }}
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'id', 'type' : 'DESC'}) }}
+      </th>
+      <th>Email
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'email', 'type' : 'ASC'}) }}  
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'email', 'type' : 'DESC'}) }}  
+      </th>
+      <th>Status
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'status', 'type' : 'ASC'}) }}
+        {{ include('admin/user/_sort_link.html.twig', {'key' : 'status', 'type' : 'DESC'}) }}
+      </th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.status }}</td>
+      <td>
+      {% if constant('ROLE_ADMIN', user) in user.roles or user.status == constant('STATUS_NOT_VERIFIED', user) %}
+        -
+      {% elseif user.status == constant('STATUS_BLOCKED', user) %}
+        <a href="{{ path('admin_user_activate', {id : user.id}) }}">Activate</a>
+      {% elseif user.status == constant('STATUS_ACTIVE', user)  %}
+        <a href="{{ path('admin_user_block', {id : user.id}) }}">Block</a>
+      {% endif %}
+      </td>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="row justify-content-end mt-3">
+  <nav class="col">
+    <ul class="pagination justify-content-end">
+      <li class="page-item" {{ thisPage == 1 ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('admin_users', {
+          page: thisPage-1 < 1 ? 1 : thisPage-1,
+          query: app.request.get('query')
+        }) }}">«</a>
+      </li>
+
+      {% for i in 1..maxPages %}
+      {% if i > 0 %}
+      <li class="page-item {{ thisPage == i ? 'active' }}" >
+        <a class="page-link" href="{{ path('admin_users', {
+          page: i,
+          query: app.request.get('query')
+        }) }}">{{ i }}</a>
+      </li>
+      {% endif %}
+      {% endfor %}
+
+      <li class="page-item" {{ thisPage == maxPages ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('admin_users', {
+          page: thisPage+1 <= maxPages ? thisPage+1 : thisPage,
+          query: app.request.get('query')
+        }) }}">»</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{% endblock %}

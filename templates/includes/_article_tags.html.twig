@@ -1,0 +1,11 @@
+{% if not article.tags.empty %}
+    <p>
+        {% for tag in article.tags %}
+            <a class="badge badge-pill {{ app.request.query.get('tag') == tag ? 'badge-success' : 'badge-primary' }}" 
+                href="{{ path('index', {'tag' : tag.name == app.request.query.get('tag') ? null : tag.name }) }}"
+            >
+                {{ tag.name }}
+            </a>
+        {% endfor %}
+    </p>
+{% endif %}

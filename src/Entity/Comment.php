@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CommentRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Comment
 {
@@ -23,10 +24,10 @@ class Comment
     private $author;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Post", inversedBy="comments")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Article", inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $post;
+    private $target;
 
     /**
      * @ORM\Column(type="datetime")
@@ -55,14 +56,14 @@ class Comment
         return $this;
     }
 
-    public function getPost(): ?Post
+    public function getTarget(): ?Article
     {
-        return $this->post;
+        return $this->target;
     }
 
-    public function setPost(?Post $post): self
+    public function setTarget(?Article $target): self
     {
-        $this->post = $post;
+        $this->target = $target;
 
         return $this;
     }
@@ -72,9 +73,12 @@ class Comment
         return $this->publishedAt;
     }
 
-    public function setPublishedAt(\DateTimeInterface $publishedAt): self
+    /**
+     * @ORM\PrePersist
+     */
+    public function setPublishedAt(): self
     {
-        $this->publishedAt = $publishedAt;
+        $this->publishedAt = new \DateTime();
 
         return $this;
     }

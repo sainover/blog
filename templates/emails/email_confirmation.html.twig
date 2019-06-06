@@ -1,0 +1,5 @@
+<h3>Подтверждение почты</h3>
+<p>Здравствуйте, {{ name }}!</p>
+<p>Для продолжения регистрации, перейдите по ссылке: 
+    <a href="{{ absolute_url(path('confirmation', {token: token})) }}">{{ absolute_url(path('confirmation', {token: token})) }}</a>.
+</p>
