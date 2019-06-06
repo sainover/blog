@@ -3,16 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Article;
-use App\Entity\Regard;
 use App\Service\ArticleService;
-use App\Repository\TagRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Form\ArticleType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\ArticleRepository;
 
 /**
  * @Route("/user/article")
@@ -29,21 +27,26 @@ class UserController extends AbstractController
     /**
      * @Route("/", name="user_article_index", methods={"GET"})
      */
-    public function userArticleIndex()
+    public function userArticleIndex(Request $request, ArticleRepository $articleRepository): Response
     {
+        $page = $request->query->get('page') ? : 1;
         $user = $this->getUser();
-        $authorArticles = $this->articleService->getAuthorArticles($user);
+
+        $userArticles = $articleRepository->customFind($page, ['author' => $user]);
+        $maxPages = ceil(count($userArticles) / Article::COUNT_ON_PAGE);
 
         return $this->render('user/index.html.twig', [
             'user' => $user,
-            'articles' => $authorArticles
+            'maxPages' => $maxPages,
+            'thisPage' => $page,
+            'articles' => $userArticles
         ]);
     }
 
     /**
      * @Route("/new", name="user_article_new", methods={"GET", "POST"})
      */
-    public function userArticleNew(Request $request)
+    public function userArticleNew(Request $request): Response
     {
         $article = new Article;
         $form = $this->createForm(ArticleType::class, $article);

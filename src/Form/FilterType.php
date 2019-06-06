@@ -2,11 +2,12 @@
 
 namespace App\Form;
 
-use App\Form\StatusType;
+use App\Entity\Article;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class FilterType extends AbstractType
 {
@@ -14,7 +15,14 @@ class FilterType extends AbstractType
     {
         $builder
             ->add('email')
-            ->add('status', StatusType::class)
+            ->add('status', ChoiceType::class, [
+                'choices' => [
+                    Article::STATUS_DECLINED => Article::STATUS_DRAFT,
+                    Article::STATUS_MODERATION => Article::STATUS_MODERATION,
+                    Article::STATUS_PUBLISHED => Article::STATUS_PUBLISHED,
+                ],
+                'placeholder' => 'Set status',
+            ])
             ->add('dateFrom', DateType::class, [
                 'widget' => 'single_text'
             ])

@@ -35,16 +35,9 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = $form->get('plainPassword')->getData();
             $this->userService->register($user, $plainPassword);
-            $this->addFlash('notice', 'Регистрация прошла успешно. На указанный Вами почтовый адрес отправлено сообщение с ссылкой для подтверждения аккаунта.');
-
-            /*
-            return $guardHandler->authenticateUserAndHandleSuccess(
-                $user,
-                $request,
-                $authenticator,
-                'main' // firewall name in security.yaml
-            );
-            */
+            $this->addFlash('notice', 'You successfully register. Check your email to activate confirmation,');
+            
+            $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [

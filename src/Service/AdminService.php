@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
+use App\Entity\Article;
 
 class AdminService
 {
@@ -34,7 +35,7 @@ class AdminService
         $data = [];
         $users = $this->manager
             ->getRepository(User::class)
-            ->searchByEmail($query);
+            ->customFind(null, [], ['email' => $query], []);
             
         foreach($users as $user) {
             $data[] = $user->getEmail();

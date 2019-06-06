@@ -6,6 +6,7 @@
 	{% block stylesheets %}
 		<link href="{{ asset('css/bootstrap.min.css') }}" rel='stylesheet' type='text/css'>
 		<link href="{{ asset('css/autocomplete.css') }}" rel='stylesheet' type='text/css'>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
 	{% endblock %}
 </head>
 <body>
@@ -18,6 +19,7 @@
 	<script src="{{ asset('js/jquery-3.4.1.min.js') }}"></script>
 	<script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="https://unpkg.com/ionicons@4.5.5/dist/ionicons.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
     
     <script type="text/javascript">
         $('input.autocomplete_input').after(`<ul class="autocomplete_options"></ul>`);

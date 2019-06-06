@@ -17,12 +17,13 @@
         <div>
             <h2>Comments:</h2>
             {% for comment in article.comments %}
-                <div>
-                    <span>Author: {{ comment.author.fullName }}</span>
+                <div class="mb-3">
+                    <b>Author: {{ comment.author.fullName }}</b><br>
                     <span>{{ comment.content }}
                 </div>
             {% endfor %}
             <div>
+                {% form_theme form 'bootstrap_4_layout.html.twig' %}
                 {{ form(form) }}
             </div>
         </div>

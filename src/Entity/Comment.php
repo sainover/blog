@@ -61,7 +61,7 @@ class Comment
         return $this->target;
     }
 
-    public function setArticle(?Article $target): self
+    public function setTarget(?Article $target): self
     {
         $this->target = $target;
 

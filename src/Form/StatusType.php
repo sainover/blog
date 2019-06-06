@@ -14,11 +14,7 @@ class StatusType extends AbstractType
     {
         $builder
             ->add('status', ChoiceType::class, [
-                'choices' => [
-                    Article::STATUS_DECLINED => Article::STATUS_DECLINED,
-                    Article::STATUS_PUBLISHED => Article::STATUS_PUBLISHED,
-                    Article::STATUS_DRAFT => Article::STATUS_DRAFT,
-                ],
+                'choices' => Article::STATUSES_CHANGABLE_BY_ADMIN,
                 'placeholder' => 'Set status',
                 'required' => true,
             ])

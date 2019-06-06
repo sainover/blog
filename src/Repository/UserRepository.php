@@ -9,9 +9,9 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
+ * @method User|null findOneBy(array $criteria, array $orders = null)
  * @method User[]    findAll()
- * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method User[]    findBy(array $criteria, array $orders = null, $limit = null, $offset = null)
  */
 class UserRepository extends ServiceEntityRepository
 {
@@ -22,17 +22,56 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function searchByEmail(?string $query, int $page = 1, ?string $key = null, ?string $type = null): Paginator
+    public function customFind(?int $page = 1, array $options = [], ?array $searches = [], ?array $orders = []): Paginator
     {
-        $qb = $this->createQueryBuilder('u')
-            ->andWhere('u.email LIKE :query')
-            ->setParameter('query', '%' . $query . '%');
-        
-        if ($key && in_array($type, self::ORDER_TYPES)) {
-            $qb->orderBy('u.' . $key, $type);
-        }
+        $qb = $this->createQueryBuilder('u');
+
+        $qb = $this->addOptions($qb, $options);
+        $qb = $this->addOrders($qb, $orders);
+        $qb = $this->addSearchBy($qb, $searches);
 
         return $this->paginate($qb->getQuery(), $page ?: 1);
+    }
+
+    private function addOrders($query, array $orders)
+    {
+        foreach ($orders as $field => $type) {
+            if (!$type) {
+                continue;
+            }
+
+            if ($field && in_array($type, self::ORDER_TYPES)) {
+                $query->orderBy('u.' . $field, $type);
+            }            
+        }
+
+        return $query;
+    }
+
+    private function addSearchBy($query, array $searches)
+    {
+        foreach($searches as $field => $value) {
+            if (!$value) {
+                continue;
+            }
+
+            $query->andWhere('u.' . $field . ' LIKE :value')
+                ->setParameter(':value', '%' . $value . '%')
+            ;
+        }
+
+        return $query;
+    }
+
+    private function addOptions($query, array $options)
+    {
+        foreach($options as $field => $value) {
+            $query->andWhere('u.' . $field . ' = :value')
+                ->setParameter(':value', $value)
+            ;
+        }
+
+        return $query;
     }
 
     public function paginate($dql, int $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
@@ -53,7 +92,7 @@ class UserRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('u')
             ->andWhere('u.exampleField = :val')
             ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
+            ->orders('u.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()

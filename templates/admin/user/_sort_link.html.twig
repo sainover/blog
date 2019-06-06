@@ -7,7 +7,11 @@
     }) }}
 ">
 {% else %}
-<a href="#" class="text-muted">
+<a href="
+    {{ path('admin_users', {
+        query: app.request.get('query'),
+    }) }}
+"class="text-muted">
 {% endif %}
     <ion-icon name="{{ type == 'ASC' ? 'arrow-round-up' : 'arrow-round-down' }}"></ion-icon>
 </a>

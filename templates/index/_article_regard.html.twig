@@ -1,9 +1,9 @@
 <span>
-    <a href="#" onclick="toggleLike({{ article.id }}, true)">
+    <a href="#" onclick="toggleRegard('{{ path('article_like', {'id' : article.id}) }}', {{ article.id}})">
         <ion-icon name="arrow-round-up"></ion-icon>
     </a>
     <span id="article{{ article.id }}_rating">{{ article.rating }}</span>
-    <a href="#" onclick="toggleDislike({{ article.id }}, false)">
+    <a href="#" onclick="toggleRegard('{{ path('article_dislike', {'id' : article.id}) }}', {{ article.id}})">
         <ion-icon name="arrow-round-down"></ion-icon>
     </a>
 </span>

@@ -35,4 +35,32 @@
     {% endfor %}
   </tbody>
 </table>
+
+<div class="row justify-content-end mt-3">
+  <nav class="col">
+    <ul class="pagination justify-content-end">
+      <li class="page-item" {{ thisPage == 1 ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('user_article_index', {
+          page: thisPage-1 < 1 ? 1 : thisPage-1,
+        }) }}">«</a>
+      </li>
+
+      {% for i in 1..maxPages %}
+      {% if i > 0 %}
+      <li class="page-item {{ thisPage == i ? 'active' }}" >
+        <a class="page-link" href="{{ path('user_article_index', {
+          page: i,
+        }) }}">{{ i }}</a>
+      </li>
+      {% endif %}
+      {% endfor %}
+
+      <li class="page-item" {{ thisPage == maxPages ? 'class="disabled"' }}>
+        <a class="page-link" href="{{ path('user_article_index', {
+          page: thisPage+1 <= maxPages ? thisPage+1 : thisPage,
+        }) }}">»</a>
+      </li>
+    </ul>
+  </nav>
+</div>
 {% endblock %}

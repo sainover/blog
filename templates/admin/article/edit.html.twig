@@ -8,7 +8,7 @@
     <input class="form-control mt-4 mb-4" type="text" value="{{ article.title }}" disabled>
     <select class="tags article_tags form-control" disabled multiple placeholder="tags">
     </select>
-    <span class="form-control mt-4 text-muted">
+    <span class="mt-4 text-muted">
         {{ article.content|raw }}
     </span>
     {{ form_start(form) }}

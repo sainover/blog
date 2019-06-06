@@ -18,6 +18,25 @@ class Article
     public const STATUS_PUBLISHED = 'Published';
     public const STATUS_DECLINED= 'Declined';
 
+    public const STATUSES_ALL = [
+        self::STATUS_DRAFT => self::STATUS_DRAFT,
+        self::STATUS_MODERATION => self::STATUS_MODERATION,
+        self::STATUS_PUBLISHED => self::STATUS_PUBLISHED,
+        self::STATUS_DECLINED => self::STATUS_DECLINED,
+    ];
+
+    public const STATUSES_VIEWABLE_TO_ADMIN = [
+        self::STATUS_MODERATION => self::STATUS_MODERATION,
+        self::STATUS_PUBLISHED => self::STATUS_PUBLISHED,
+        self::STATUS_DECLINED => self::STATUS_DECLINED,
+    ];
+
+    public const STATUSES_CHANGABLE_BY_ADMIN = [
+        self::STATUS_DRAFT => self::STATUS_DRAFT,
+        self::STATUS_PUBLISHED => self::STATUS_PUBLISHED,
+        self::STATUS_DECLINED => self::STATUS_DECLINED,
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -36,7 +55,12 @@ class Article
     private $content;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="target", orphanRemoval=true)
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entity\Comment", 
+     *      mappedBy="target", 
+     *      orphanRemoval=true,
+     *      cascade={"persist"}
+     * )
      */
     private $comments;
 
@@ -67,7 +91,12 @@ class Article
     private $author;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Regard", mappedBy="target", orphanRemoval=true)
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entity\Regard", 
+     *      mappedBy="target", 
+     *      orphanRemoval=true,
+     *      cascade={"persist"}
+     * )
      */
     private $regards;
 
@@ -119,7 +148,7 @@ class Article
     {
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
-            $comment->setArticle($this);
+            $comment->setTarget($this);
         }
 
         return $this;
@@ -130,8 +159,8 @@ class Article
         if ($this->comments->contains($comment)) {
             $this->comments->removeElement($comment);
             // set the owning side to null (unless already changed)
-            if ($comment->getArticle() === $this) {
-                $comment->setArticle(null);
+            if ($comment->getTarget() === $this) {
+                $comment->setTarget(null);
             }
         }
 
@@ -224,7 +253,7 @@ class Article
     {
         if (!$this->regards->contains($regard)) {
             $this->regards[] = $regard;
-            $regard->setArticle($this);
+            $regard->setTarget($this);
         }
 
         return $this;
@@ -235,8 +264,8 @@ class Article
         if ($this->regards->contains($regard)) {
             $this->regards->removeElement($regard);
             // set the owning side to null (unless already changed)
-            if ($regard->getArticle() === $this) {
-                $regard->setArticle(null);
+            if ($regard->getTarget() === $this) {
+                $regard->setTarget(null);
             }
         }
 

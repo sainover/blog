@@ -57,6 +57,7 @@ class User implements UserInterface
     private $fullName;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=60, nullable=true)
      */
     private $token;
@@ -67,6 +68,7 @@ class User implements UserInterface
     private $articles;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $status;
@@ -234,5 +236,19 @@ class User implements UserInterface
     public function isActive(): bool
     {
         return $this->getStatus() === self::STATUS_ACTIVE;
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->getStatus() === self::STATUS_BLOCKED;
+    }
+
+    public function getStatusConstants(): array
+    {
+        return [
+            self::STATUS_ACTIVE => self::STATUS_ACTIVE,
+            self::STATUS_BLOCKED => self::STATUS_BLOCKED,
+            self::STATUS_NOT_VERIFIED => self::STATUS_NOT_VERIFIED,
+        ];
     }
 }

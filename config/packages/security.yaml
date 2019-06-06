@@ -19,6 +19,7 @@ security:
             guard:
                 authenticators:
                     - App\Security\UserAuthenticator
+
             logout:
                 path: app_logout
 
@@ -35,6 +36,7 @@ security:
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/user/article*, roles: ROLE_USER }
+        - { path: ^/article/$/regard/*, roles: ROLE_USER }
     
     role_hierarchy:
         ROLE_ADMIN: ROLE_USER

@@ -3,7 +3,6 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-{{ include('includes/_flashes.html.twig') }}
 <form method="post">
     {% if error|default(null) %}
     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>

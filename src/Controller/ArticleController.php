@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Regard;
 use App\Entity\Comment;
 use App\Form\CommentType;
 use App\Service\ArticleService;
+use App\Service\CommentService;
 use App\Security\Voter\ArticleVoter;
 use App\Repository\ArticleRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,20 +16,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\TagRepository;
-use App\Service\CommentService;
-use App\Service\RegardService;
 
 class ArticleController extends AbstractController
 {
     private $articleService;
     private $commentService;
-    private $regardService;
 
-    public function __contruct(ArticleService $articleService, CommentService $commentService, RegardService $regardService)
+    public function __construct(ArticleService $articleService, CommentService $commentService)
     {
         $this->articleService = $articleService;
         $this->commentService = $commentService;
-        $this->regardService = $regardService;
     }
 
     /**
@@ -37,12 +35,12 @@ class ArticleController extends AbstractController
     {        
         $page = $request->query->get('page') ? : 1;
 
-        $tag = null;     
+        $tag = null;
         if ($request->query->has('tag')) {
             $tag = $tagRepository->findOneBy(['name' => $request->query->get('tag')]);
         }
 
-        $articles = $articleRepository->findLatest($page, $tag, [Article::STATUS_PUBLISHED]);
+        $articles = $articleRepository->customFind($page, ['tag' => $tag, 'status' => Article::STATUS_PUBLISHED], [], ['publishedAt' => 'DESC']);
         $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
 
         return $this->render('index/index.html.twig', [
@@ -64,8 +62,7 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
-            $this->commmentService->createComment($comment);
+            $this->commentService->createComment($comment, $article);
             $this->addFlash(
                 'success_comment',
                 'You added commentary to article "' . $article->getTitle()
@@ -79,20 +76,20 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/article/{id}/regard/like", name="user_article_like", methods={"PUT"})
+     * @Route("/article/{id}/regard/like", name="article_like", methods={"PUT"})
      */
-    public function userArticleToggleLike(Article $article): Response
+    public function articleLike(Article $article): Response
     {
-        $ratingValue = $this->regardService->toggleRegardArticle($article, Regard::LIKE);
+        $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::LIKE);
         return new Response($ratingValue, Response::HTTP_OK);
     }
 
     /**
-     * @Route("/article/{id}/regard/dislike", name="user_article_dislike", methods={"PUT"})
+     * @Route("/article/{id}/regard/dislike", name="article_dislike", methods={"PUT"})
      */
-    public function userArticleToggleDislike(Article $article): Response
+    public function articleDislike(Article $article): Response
     {
-        $ratingValue = $this->regardService->toggleRegardArticle($article, Regard::DISLIKE);
+        $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::DISLIKE);
         return new Response($ratingValue, Response::HTTP_OK);
     }
 

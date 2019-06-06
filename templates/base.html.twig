@@ -11,6 +11,7 @@
 <body>
 	<div class="container">
 	{{ include('menu.html.twig') }}
+	{{ include('includes/_flashes.html.twig') }}
 	{% block body %}{% endblock %}
 	</div>
 
@@ -40,11 +41,11 @@
 		})
 	}
 
-	const toggleLike = (id) => {
+	const toggleRegard= (url, id) => {
 		const elem = $(`#article${id}_rating`)
 		$.ajax({
 			type: 'PUT',
-			url: `/user/article/${id}/regard/like`,
+			url: url,
 			datatype: 'json',
 			async: true,
 			success: response => {
@@ -53,28 +54,14 @@
 		})
 	}
 
-	const toggleDislike = (id) => {
-		const elem = $(`#article${id}_rating`)
-		$.ajax({
-			type: 'PUT',
-			url: `/user/article/${id}/regard/dislike`,
-			datatype: 'json',
-			async: true,
-			success: response => {
-				elem.text(response)
-			}
-		})
-	}
-
-	$( document ).ready(function() {
-		$('.tags').select2({
-			placeholder: 'Tags',
-		});
-
-		$('.article_tags').each(function() {
-			setTags($(this)[0]);
-		});
+	$('.tags').select2({
+		placeholder: 'Tags',
 	});
+
+	$('.article_tags').each(function() {
+		setTags($(this)[0]);
+	});
+
 	</script>
 	{% endblock %}
 

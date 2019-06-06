@@ -77,10 +77,12 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        if (!empty($user->getToken())) {
-            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Пожалуйста, подтвердите свой email.');
+        if ($user->isBlocked()) {
+            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Account blocked.');
+        } elseif (!empty($user->getToken())) {
+            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Please, confirm your email.');
         } elseif (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
-            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Неверный пароль.');
+            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Wrong password.');
         }
 
         return true;

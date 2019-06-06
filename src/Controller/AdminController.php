@@ -46,25 +46,25 @@ class AdminController extends AbstractController
     public function adminArticles(Request $request, ArticleRepository $articleRepository)
     {
         $page = $request->query->get('page') ? : 1;
-        $email = null;
-        $dateFrom = null;
-        $dateTo = null;
-        $statuses = null;
 
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $status = $form->getData()['status'];
-            $email = $form->getData()['email'];
-            $dateFrom = $form->getData()['dateFrom'];
-            $dateTo = $form->getData()['dateTo'];
+        $options = [];
+        $searches = [];
 
-            $statuses = $status == null ? null : [$status];
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->getData()['status'] !== null) {
+                $options['statuses'][] =  $form->getData()['status'];
+            } else {
+                $options['statuses'] = array_values(Article::STATUSES_VIEWABLE_TO_ADMIN);
+            }
+            $searches['email'] = $form->getData()['email'];
+            $options['dateFrom'] = $form->getData()['dateFrom'];
+            $options['dateTo'] = $form->getData()['dateTo'];
         }
 
-        $articles = $articleRepository->findLatest($page, null, $statuses, $email, $dateFrom, $dateTo);
-
+        $articles = $articleRepository->customFind($page, $options, $searches);
         $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
 
         return $this->render('admin/article/index.html.twig', [
@@ -105,7 +105,7 @@ class AdminController extends AbstractController
         $sortBy = $request->get('sortBy');
         $sortType = $request->get('sortType');
 
-        $users = $userRepository->searchByEmail($query, $page, $sortBy, $sortType);
+        $users = $userRepository->customFind($page, [], ['email' => $query], [$sortBy => $sortType]);
         $maxPages = ceil(count($users) / User::COUNT_ON_PAGE);
 
         return $this->render('admin/user/index.html.twig', [

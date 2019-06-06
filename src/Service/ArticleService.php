@@ -56,34 +56,29 @@ class ArticleService
         $this->manager->flush();
     }
 
-    public function getAuthorArticles(User $user): Array
+    public function toggleRegardArticle(Article $article, bool $value): int
     {
-        $articles = $this->manager
-            ->getRepository(Article::class)
-            ->findBy(["author" => $user])
-        ;
-        return $articles;
-    }
-
-    public function updateRating(Article $article): int
-    {
-        $regards = $this->manager
+        $regard = $this->manager
             ->getRepository(Regard::class)
-            ->findBy(["target" => $article])
-        ;
-
-        $rating = 0;
+            ->findOneBy(["author" => $this->currentUser, "target" => $article]);
         
-        foreach($regards as $regard) {
-            $rating += $regard->getValue() === Regard::LIKE ? 1 : -1;
+        if (null === $regard) {
+            $regard = new Regard;
+            $regard
+                ->setAuthor($this->currentUser)
+                ->setTarget($article)
+            ;
         }
 
-        $article->setRating($rating);
+        if ($regard->getValue() === $value) {
+            $this->manager->remove($regard);
+        } else {
+            $regard->setValue($value);
+            $this->manager->persist($regard);
+        }
 
-        $this->manager->persist($article);
         $this->manager->flush();
-
-        return $rating;
+        return $article->getRating();
     }
 
     public function isEditableArticle($article): bool
@@ -99,11 +94,6 @@ class ArticleService
     public function isAuthorArticle($user, $article): bool
     {
         return $article->getAuthor() === $user;
-    }
-
-    public function isCommentable($article): bool
-    {
-        return $this->isViewableArticle($article);
     }
 
     public function getArticleTagsAsArray($article): array

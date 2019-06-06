@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Article;
 use App\Entity\Tag;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -16,61 +17,106 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ArticleRepository extends ServiceEntityRepository
 {
+    public const ORDER_TYPES = ['ASC', 'DESC'];
+
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Article::class);
     }
 
-    public function findLatest(int $page = 1, 
-        Tag $tag = null, 
-        array $statuses = null, 
-        string $email = null, 
-        $dateFrom = null, 
-        $dateTo = null): Paginator
+    public function customFind(int $page = 1, ?array $options = [], ?array $searches = [], ?array $orders = []): Paginator
     {
-        $qb = $this->createQueryBuilder('p')
-            ->addSelect('a', 't')
-            ->innerJoin('p.author', 'a')
-            ->leftJoin('p.tags', 't')
-            ->orderBy('p.publishedAt', 'DESC')
-        ;
+        $qb = $this->createQueryBuilder('a');
 
-        if ($tag) {
-            $qb->andWhere(':tag MEMBER OF p.tags')
-                ->setParameter('tag', $tag);
-        }
-
-        if ($statuses) {
-            $qb->andWhere('p.status IN (:statuses)')
-            ->setParameter('statuses', $statuses);
-        }
-
-        if ($email) {
-            $qb->andWhere('a.email LIKE :email')
-            ->setParameter(':email', '%' . $email . '%');
-        }
-
-        if ($dateFrom) {
-            $qb
-                ->andWhere('p.publishedAt > :publishedDateFrom')
-                ->setParameter(':publishedDateFrom', $dateFrom);
-        }
-
-        if ($dateTo) {
-            $qb
-                ->andWhere('p.publishedAt < :publishedDateTo')
-                ->setParameter(':publishedDateTo', $dateTo);
-        }
+        $qb = $this->addOptions($qb, $options);
+        $qb = $this->addSearches($qb, $searches);
+        $qb = $this->addOrders($qb, $orders);
 
         return $this->paginate($qb->getQuery(), $page ?: 1);
     }
 
-    public function paginate($dql, int $page = 1, int $limit = Article::COUNT_ON_PAGE): Paginator
+    private function addOrders($query, array $orders)
+    {
+        foreach ($orders as $field => $type) {
+            if ($field && in_array($type, self::ORDER_TYPES)) {
+                $query->orderBy('a.' . $field, $type);
+            }
+        }
+
+        return $query;
+    }
+
+    private function addSearches($query, array $searches)
+    {
+        foreach($searches as $field => $value) {
+            if (!$value) {
+                continue;
+            }
+
+            switch($field) {
+                case 'email':
+                    $query
+                        ->innerJoin('a.author', 'u')
+                        ->andWhere('u.email LIKE :value')
+                        ->setParameter('value', '%' . $value . '%')
+                    ;
+                    break;
+                default:
+                    $query
+                        ->andWhere('a.' . $field . ' LIKE :value')
+                        ->setParameter('value', '%' . $value . '%')
+                    ;
+            }
+        }
+
+        return $query;
+    }
+
+    private function addOptions($query, array $options)
+    {
+        foreach($options as $field => $value) {
+            if (!$value) {
+                continue;
+            }
+
+            switch ($field) {
+                case 'tag':
+                    $query->andWhere(':tag MEMBER OF a.tags')
+                        ->setParameter('tag', $value)
+                    ;
+                    break;
+                case 'statuses':
+                    $query->andWhere('a.status IN (:statuses)')
+                        ->setParameter('statuses', $value)
+                    ;
+                    break;
+                case 'dateFrom':
+                    $query->andWhere('a.publishedAt > :dateFrom')
+                        ->setParameter('dateFrom', $value)
+                    ;
+                    break;
+                case 'dateTo':
+                    $query->andWhere('a.publishedAt < :dateTo')
+                        ->setParameter('dateTo', $value)
+                    ;
+                    break;
+                default:
+                    $query->andWhere('a.' . $field . ' = :value')
+                        ->setParameter('value', $value)
+                    ;
+            }
+        }
+
+        return $query;
+    }
+
+    public function paginate($dql, int $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
     {
         $paginator = new Paginator($dql);
         $paginator->getQuery()
             ->setFirstResult($limit * ($page - 1))
-            ->setMaxResults($limit);
+            ->setMaxResults($limit)
+        ;
         return $paginator;
     }
 

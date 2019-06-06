@@ -39,7 +39,7 @@ class ArticleVoter extends Voter
                 return $this->canDelete($article, $user);
                 break;
             case self::COMMENT:
-                return $this->canComment($article, $user);
+                return $this->canComment($user);
                 break;
             case self::REGARD:
                 return $this->canRegard($user);
@@ -47,7 +47,7 @@ class ArticleVoter extends Voter
         }
     }
 
-    public function canEdit(Article $article, ?User $user)
+    public function canEdit(Article $article, ?User $user): bool
     {
         if (!$user instanceof User) {
             return false;
@@ -56,33 +56,17 @@ class ArticleVoter extends Voter
         return $this->articleService->isEditableArticle($article) && $this->articleService->isAuthorArticle($user, $article);
     }
 
-    public function canView(Article $article)
+    public function canView(Article $article): bool
     {
         return $this->articleService->isViewableArticle($article);
     }
 
-    public function canDelete(Article $article, ?User $user)
+    public function canDelete(Article $article, ?User $user): bool
     {
         if (!$user instanceof User) {
             return false;
         }
 
         return $this->articleService->isEditableArticle($article) && $this->articleService->isAuthorArticle($user, $article);
-    }
-
-    public function canComment(Article $article, ?User $user): bool
-    {
-        if (!$user instanceof User) {
-            return false;
-        }
-
-        return $this->articleService->isCommentable($article);
-    }
-
-    public function canRegard(?User $user): bool
-    {
-        if (!$user instanceof User) {
-            return false;
-        }
     }
 }

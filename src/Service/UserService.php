@@ -24,8 +24,8 @@ class UserService
         UserPasswordEncoderInterface $passwordEncoder,
         GuardAuthenticatorHandler $guardHandler,
         UserAuthenticator $authenticator,
-        ObjectManager $manager)
-    {
+        ObjectManager $manager
+    ) {
         $this->tokenGeneratorService = $tokenGeneratorService;
         $this->emailsService = $emailsService;
         $this->passwordEncoder = $passwordEncoder;
