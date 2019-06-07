@@ -1,9 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
-use App\Service\TokenGeneratorService;
-use App\Service\EmailsService;
 use App\Entity\User;
 use App\Security\UserAuthenticator;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -19,7 +19,7 @@ class UserService
     private $authenticator;
     private $manager;
 
-    public function __construct(TokenGeneratorService $tokenGeneratorService, 
+    public function __construct(TokenGeneratorService $tokenGeneratorService,
         EmailsService $emailsService,
         UserPasswordEncoderInterface $passwordEncoder,
         GuardAuthenticatorHandler $guardHandler,
@@ -34,7 +34,7 @@ class UserService
         $this->manager = $manager;
     }
 
-    public function register(User $user, String $plainPassword): void
+    public function register(User $user, string $plainPassword): void
     {
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
@@ -51,7 +51,7 @@ class UserService
         $this->manager->flush();
     }
 
-    public function confirm(String $token): void
+    public function confirm(string $token): void
     {
         $user = $this->manager
             ->getRepository(User::class)

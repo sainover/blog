@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,8 +27,8 @@ class User implements UserInterface
     public const STATUS_BLOCKED = 'Blocked';
 
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
+     * @ORM\Id
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -34,7 +36,7 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\Email()
+     * @Assert\Email
      */
     private $email;
 
@@ -181,7 +183,7 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Article[]
+     * @return Article[]|Collection
      */
     public function getArticles(): Collection
     {
@@ -214,7 +216,7 @@ class User implements UserInterface
     public function getRating(): int
     {
         $rating = 0;
-        foreach($this->articles as $article) {
+        foreach ($this->articles as $article) {
             $rating += $article->getRating();
         }
 
@@ -235,12 +237,12 @@ class User implements UserInterface
 
     public function isActive(): bool
     {
-        return $this->getStatus() === self::STATUS_ACTIVE;
+        return self::STATUS_ACTIVE === $this->getStatus();
     }
 
     public function isBlocked(): bool
     {
-        return $this->getStatus() === self::STATUS_BLOCKED;
+        return self::STATUS_BLOCKED === $this->getStatus();
     }
 
     public function getStatusConstants(): array

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Service\UserService;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +38,7 @@ class RegistrationController extends AbstractController
             $plainPassword = $form->get('plainPassword')->getData();
             $this->userService->register($user, $plainPassword);
             $this->addFlash('notice', 'You successfully register. Check your email to activate confirmation,');
-            
+
             $this->redirectToRoute('app_login');
         }
 

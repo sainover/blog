@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
+use App\Entity\Article;
 use App\Entity\Comment;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Security;
-use App\Entity\Article;
-use App\Service\ArticleService;
 
 class CommentService
 {
     private $manager;
     private $currentUser;
     private $articleService;
-    
+
     public function __construct(ObjectManager $manager, Security $security, ArticleService $articleService)
     {
         $this->manager = $manager;

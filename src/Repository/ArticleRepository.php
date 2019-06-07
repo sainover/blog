@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Article;
-use App\Entity\Tag;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -39,7 +40,7 @@ class ArticleRepository extends ServiceEntityRepository
     {
         foreach ($orders as $field => $type) {
             if ($field && in_array($type, self::ORDER_TYPES)) {
-                $query->orderBy('a.' . $field, $type);
+                $query->orderBy('a.'.$field, $type);
             }
         }
 
@@ -48,23 +49,23 @@ class ArticleRepository extends ServiceEntityRepository
 
     private function addSearches($query, array $searches)
     {
-        foreach($searches as $field => $value) {
+        foreach ($searches as $field => $value) {
             if (!$value) {
                 continue;
             }
 
-            switch($field) {
+            switch ($field) {
                 case 'email':
                     $query
                         ->innerJoin('a.author', 'u')
                         ->andWhere('u.email LIKE :value')
-                        ->setParameter('value', '%' . $value . '%')
+                        ->setParameter('value', '%'.$value.'%')
                     ;
                     break;
                 default:
                     $query
-                        ->andWhere('a.' . $field . ' LIKE :value')
-                        ->setParameter('value', '%' . $value . '%')
+                        ->andWhere('a.'.$field.' LIKE :value')
+                        ->setParameter('value', '%'.$value.'%')
                     ;
             }
         }
@@ -74,7 +75,7 @@ class ArticleRepository extends ServiceEntityRepository
 
     private function addOptions($query, array $options)
     {
-        foreach($options as $field => $value) {
+        foreach ($options as $field => $value) {
             if (!$value) {
                 continue;
             }
@@ -101,7 +102,7 @@ class ArticleRepository extends ServiceEntityRepository
                     ;
                     break;
                 default:
-                    $query->andWhere('a.' . $field . ' = :value')
+                    $query->andWhere('a.'.$field.' = :value')
                         ->setParameter('value', $value)
                     ;
             }
@@ -117,6 +118,7 @@ class ArticleRepository extends ServiceEntityRepository
             ->setFirstResult($limit * ($page - 1))
             ->setMaxResults($limit)
         ;
+
         return $paginator;
     }
 

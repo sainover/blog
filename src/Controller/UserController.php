@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Article;
-use App\Service\ArticleService;
-use App\Security\Voter\ArticleVoter;
 use App\Form\ArticleType;
+use App\Repository\ArticleRepository;
+use App\Security\Voter\ArticleVoter;
+use App\Service\ArticleService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Repository\ArticleRepository;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/user/article")
@@ -29,7 +31,7 @@ class UserController extends AbstractController
      */
     public function userArticleIndex(Request $request, ArticleRepository $articleRepository): Response
     {
-        $page = $request->query->get('page') ? : 1;
+        $page = $request->query->get('page') ?: 1;
         $user = $this->getUser();
 
         $userArticles = $articleRepository->customFind($page, ['author' => $user]);
@@ -39,7 +41,7 @@ class UserController extends AbstractController
             'user' => $user,
             'maxPages' => $maxPages,
             'thisPage' => $page,
-            'articles' => $userArticles
+            'articles' => $userArticles,
         ]);
     }
 
@@ -48,17 +50,18 @@ class UserController extends AbstractController
      */
     public function userArticleNew(Request $request): Response
     {
-        $article = new Article;
+        $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->articleService->createArticle($article);
+
             return $this->redirectToRoute('user_article_index');
         }
 
         return $this->render('user/article/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -74,11 +77,12 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->articleService->updateArticle($article);
+
             return $this->redirectToRoute('user_article_index');
         }
 
         return $this->render('user/article/edit.html.twig', [
-            'form'=> $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -91,7 +95,8 @@ class UserController extends AbstractController
 
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
             $this->articleService->deleteArticle($article);
-            return $this->redirectToRoute("user_article_index");
+
+            return $this->redirectToRoute('user_article_index');
         }
     }
 
@@ -103,6 +108,7 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
         $this->articleService->sendToModeration($article);
-        return $this->redirectToRoute("user_article_index");
+
+        return $this->redirectToRoute('user_article_index');
     }
 }

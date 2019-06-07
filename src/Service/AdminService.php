@@ -1,16 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
-use App\Entity\Article;
 
 class AdminService
 {
     private $manager;
 
-    public function __construct( 
+    public function __construct(
         ObjectManager $manager
     ) {
         $this->manager = $manager;
@@ -36,10 +37,11 @@ class AdminService
         $users = $this->manager
             ->getRepository(User::class)
             ->customFind(null, [], ['email' => $query], []);
-            
-        foreach($users as $user) {
+
+        foreach ($users as $user) {
             $data[] = $user->getEmail();
         }
+
         return $data;
     }
 }

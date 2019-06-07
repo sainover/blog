@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Article;
 use App\Entity\User;
+use App\Service\ArticleService;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
-use App\Service\ArticleService;
 
 class ArticleVoter extends Voter
 {
@@ -27,7 +29,7 @@ class ArticleVoter extends Voter
     protected function voteOnAttribute($attribute, $article, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        
+
         switch ($attribute) {
             case self::EDIT:
                 return $this->canEdit($article, $user);

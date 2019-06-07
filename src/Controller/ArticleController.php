@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Article;
-use App\Entity\Regard;
 use App\Entity\Comment;
+use App\Entity\Regard;
 use App\Form\CommentType;
+use App\Repository\ArticleRepository;
+use App\Repository\TagRepository;
+use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
-use App\Security\Voter\ArticleVoter;
-use App\Repository\ArticleRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Repository\TagRepository;
 
 class ArticleController extends AbstractController
 {
@@ -32,8 +34,8 @@ class ArticleController extends AbstractController
      * @Route("/", defaults={"page": "1"}, name="index", methods={"GET"})
      */
     public function index(Request $request, ArticleRepository $articleRepository, TagRepository $tagRepository): Response
-    {        
-        $page = $request->query->get('page') ? : 1;
+    {
+        $page = $request->query->get('page') ?: 1;
 
         $tag = null;
         if ($request->query->has('tag')) {
@@ -65,7 +67,7 @@ class ArticleController extends AbstractController
             $this->commentService->createComment($comment, $article);
             $this->addFlash(
                 'success_comment',
-                'You added commentary to article "' . $article->getTitle()
+                'You added commentary to article "'.$article->getTitle()
             );
         }
 
@@ -81,6 +83,7 @@ class ArticleController extends AbstractController
     public function articleLike(Article $article): Response
     {
         $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::LIKE);
+
         return new Response($ratingValue, Response::HTTP_OK);
     }
 
@@ -90,6 +93,7 @@ class ArticleController extends AbstractController
     public function articleDislike(Article $article): Response
     {
         $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::DISLIKE);
+
         return new Response($ratingValue, Response::HTTP_OK);
     }
 

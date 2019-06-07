@@ -17,7 +17,7 @@
 /.web-server-pid
 ###< symfony/web-server-bundle ###
 
-###> squizlabs/php_codesniffer ###
-/.phpcs-cache
-/phpcs.xml
-###< squizlabs/php_codesniffer ###
+###> junstyle/php-cs-fixer ###
+/.php_cs.dist
+/.php_cs.cache
+###< junstyle/php-cs-fixer ###

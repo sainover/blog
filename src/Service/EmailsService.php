@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
-use App\Entity\User;
 use Twig\Environment;
 
 class EmailsService
@@ -16,7 +17,7 @@ class EmailsService
         $this->templating = $templating;
     }
 
-    public function emailConfirmation(String $userName, String $userEmail, String $userToken)
+    public function emailConfirmation(string $userName, string $userEmail, string $userToken)
     {
         $message = (new \Swift_Message('Email confirmation'))
             ->setFrom('blog.noveo@gmail.com')
