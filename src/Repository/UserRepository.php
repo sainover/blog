@@ -24,6 +24,16 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    public function findOneByToken(?string $token): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.token = :val')
+            ->setParameter('val', $token)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     public function customFind($page = 1, ?array $options = [], ?array $searches = [], ?array $orders = []): Paginator
     {
         $qb = $this->createQueryBuilder('u');

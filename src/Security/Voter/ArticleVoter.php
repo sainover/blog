@@ -15,6 +15,16 @@ class ArticleVoter extends Voter
     public const DELETE = 'delete';
     public const EDIT = 'edit';
     public const SHOW = 'show';
+    public const COMMENT = 'comment';
+    public const REGARD = 'regard';
+
+    private const ACTIONS = [
+        self::DELETE,
+        self::EDIT,
+        self::SHOW,
+        self::COMMENT,
+        self::REGARD,
+    ];
 
     public function __construct(ArticleService $articleService)
     {
@@ -23,7 +33,7 @@ class ArticleVoter extends Voter
 
     protected function supports($attributes, $subject): bool
     {
-        return $subject instanceof Article && \in_array($attributes, [self::DELETE, self::EDIT, self::SHOW], true);
+        return $subject instanceof Article && \in_array($attributes, self::ACTIONS, true);
     }
 
     protected function voteOnAttribute($attribute, $article, TokenInterface $token): bool
@@ -47,6 +57,8 @@ class ArticleVoter extends Voter
                 return $this->canRegard($user);
                 break;
         }
+
+        throw new \LogicException('This code should not be reached!');
     }
 
     public function canEdit(Article $article, ?User $user): bool
@@ -70,5 +82,19 @@ class ArticleVoter extends Voter
         }
 
         return $this->articleService->isEditableArticle($article) && $this->articleService->isAuthorArticle($user, $article);
+    }
+
+    public function canComment(?User $user)
+    {
+        if (!$user instanceof User) {
+            return false;
+        }
+    }
+
+    public function canRegard(?User $user)
+    {
+        if (!$user instanceof User) {
+            return false;
+        }
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\UserRepository;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,9 +21,8 @@ class SecurityController extends AbstractController
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('index');
         }
-        // get the login error if there is one
+
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
@@ -39,14 +39,17 @@ class SecurityController extends AbstractController
     /**
      * @Route("/confirmation/{token}", name="confirmation", methods={"GET"})
      */
-    public function confirmation(string $token, UserService $userService)
+    public function confirmation(UserRepository $userRepository, string $token, UserService $userService): Response
     {
-        if ($userService->confirm($token)) {
-            $this->addFlash('notice', 'Аккаунт успешно активирован');
+        $user = $userRepository->findOneByToken($token);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Confirmation link not valid');
+        } else {
+            $userService->confirm($user);
+            $this->addFlash('notice', 'Account succesfully activated');
 
             return $this->redirectToRoute('app_login');
-        } else {
-            throw $this->createNotFoundException('Страница не найдена');
         }
     }
 }

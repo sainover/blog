@@ -5,60 +5,53 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\User;
-use App\Security\UserAuthenticator;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserService
 {
     private $tokenGeneratorService;
     private $emailsService;
     private $passwordEncoder;
-    private $guardHandler;
-    private $authenticator;
     private $manager;
 
-    public function __construct(TokenGeneratorService $tokenGeneratorService,
+    public function __construct(
+        TokenGeneratorService $tokenGeneratorService,
         EmailsService $emailsService,
         UserPasswordEncoderInterface $passwordEncoder,
-        GuardAuthenticatorHandler $guardHandler,
-        UserAuthenticator $authenticator,
         ObjectManager $manager
     ) {
         $this->tokenGeneratorService = $tokenGeneratorService;
         $this->emailsService = $emailsService;
         $this->passwordEncoder = $passwordEncoder;
-        $this->guardHandler = $guardHandler;
-        $this->authenticator = $authenticator;
         $this->manager = $manager;
     }
 
-    public function register(User $user, string $plainPassword): void
+    public function register(User $user): void
     {
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
                 $user,
-                $plainPassword
+                $user->getPlainPassword()
             )
         );
+        $user->eraseCredentials();
         $user->setToken($this->tokenGeneratorService->generate());
         $user->setStatus(User::STATUS_NOT_VERIFIED);
 
-        $this->emailsService->emailConfirmation($user->getFullName(), $user->getEmail(), $user->getToken());
-
         $this->manager->persist($user);
         $this->manager->flush();
+
+        if (!$this->emailsService->sendEmailConfirmation($user)) {
+            $this->addFlash('warning', 'An error occurred while sending the message.');
+        }
     }
 
-    public function confirm(string $token): void
+    public function confirm(User $user): void
     {
-        $user = $this->manager
-            ->getRepository(User::class)
-            ->findOneBy(['token' => $token])
-        ;
-        $user->setToken('');
+        $user->setToken(null);
         $user->setStatus(User::STATUS_ACTIVE);
+        $this->manager->persist($user);
         $this->manager->flush();
     }
 }

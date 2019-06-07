@@ -93,6 +93,18 @@ class User implements UserInterface
      */
     private $status;
 
+    /**
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Assert\NotBlank(message = "Please enter a password")
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 4096,
+     *      minMessage = "Your password should be at least {{ limit }} characters",
+     *      maxMessage = "Your password cannot be longer than {{ limit }} characters",
+     * )
+     */
+    private $plainPassword;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
@@ -116,8 +128,6 @@ class User implements UserInterface
     }
 
     /**
-     * A visual identifier that represents this user.
-     *
      * @see UserInterface
      */
     public function getUsername(): string
@@ -131,7 +141,6 @@ class User implements UserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = User::ROLE_USER;
 
         return array_unique($roles);
@@ -172,8 +181,7 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getFullName(): ?string
@@ -270,5 +278,17 @@ class User implements UserInterface
             self::STATUS_BLOCKED => self::STATUS_BLOCKED,
             self::STATUS_NOT_VERIFIED => self::STATUS_NOT_VERIFIED,
         ];
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 }
