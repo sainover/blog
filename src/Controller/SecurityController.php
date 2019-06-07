@@ -41,15 +41,15 @@ class SecurityController extends AbstractController
      */
     public function confirmation(UserRepository $userRepository, string $token, UserService $userService): Response
     {
-        $user = $userRepository->findOneByToken($token);
+        $user = $userRepository->findByToken($token);
 
         if (!$user) {
             throw $this->createNotFoundException('Confirmation link not valid');
-        } else {
-            $userService->confirm($user);
-            $this->addFlash('notice', 'Account succesfully activated');
-
-            return $this->redirectToRoute('app_login');
         }
+
+        $userService->confirm($user);
+        $this->addFlash('notice', 'Account succesfully activated');
+
+        return $this->redirectToRoute('app_login');
     }
 }

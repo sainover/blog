@@ -6,7 +6,6 @@ namespace App\Security\Voter;
 
 use App\Entity\Article;
 use App\Entity\User;
-use App\Service\ArticleService;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -18,18 +17,7 @@ class ArticleVoter extends Voter
     public const COMMENT = 'comment';
     public const REGARD = 'regard';
 
-    private const ACTIONS = [
-        self::DELETE,
-        self::EDIT,
-        self::SHOW,
-        self::COMMENT,
-        self::REGARD,
-    ];
-
-    public function __construct(ArticleService $articleService)
-    {
-        $this->articleService = $articleService;
-    }
+    private const ACTIONS = [ self::DELETE, self::EDIT, self::SHOW, self::COMMENT, self::REGARD ];
 
     protected function supports($attributes, $subject): bool
     {
@@ -39,7 +27,7 @@ class ArticleVoter extends Voter
     protected function voteOnAttribute($attribute, $article, TokenInterface $token): bool
     {
         $user = $token->getUser();
-
+        
         switch ($attribute) {
             case self::EDIT:
                 return $this->canEdit($article, $user);
@@ -61,40 +49,44 @@ class ArticleVoter extends Voter
         throw new \LogicException('This code should not be reached!');
     }
 
-    public function canEdit(Article $article, ?User $user): bool
+    public function canEdit(Article $article, User $user): bool
     {
         if (!$user instanceof User) {
             return false;
         }
 
-        return $this->articleService->isEditableArticle($article) && $this->articleService->isAuthorArticle($user, $article);
+        return $article->isEditable($article) && $article->isAuthor($user);
     }
 
     public function canView(Article $article): bool
     {
-        return $this->articleService->isViewableArticle($article);
+        return $article->isViewable();
     }
 
-    public function canDelete(Article $article, ?User $user): bool
+    public function canDelete(Article $article, User $user): bool
     {
         if (!$user instanceof User) {
             return false;
         }
 
-        return $this->articleService->isEditableArticle($article) && $this->articleService->isAuthorArticle($user, $article);
+        return $article->isDeletable() && $article->isAuthor($user);
     }
 
-    public function canComment(?User $user)
+    public function canComment(User $user)
     {
         if (!$user instanceof User) {
             return false;
         }
+
+        return true;
     }
 
-    public function canRegard(?User $user)
+    public function canRegard(User $user)
     {
         if (!$user instanceof User) {
             return false;
         }
+
+        return true;
     }
 }

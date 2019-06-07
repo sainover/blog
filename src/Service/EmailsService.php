@@ -18,7 +18,7 @@ class EmailsService
         $this->templating = $templating;
     }
 
-    public function sendEmailConfirmation(?User $user): int
+    public function sendEmailConfirmation(User $user): void
     {
         $message = (new \Swift_Message('Email confirmation'))
             ->setFrom('blog.noveo@gmail.com')
@@ -26,14 +26,15 @@ class EmailsService
             ->setBody(
                 $this->templating->render(
                     'emails/email_confirmation.html.twig', [
-                        'name' => $user->getFullName(),
-                        'token' => $user->getToken(),
+                        'user' => $user,
                     ]
                 ),
                 'text/html'
             )
         ;
 
-        return $this->mailer->send($message);
+        if ($this->mailer->send($message) == 0) {
+            throw new RuntimeException('An error occurred while sending the message.');
+        }
     }
 }

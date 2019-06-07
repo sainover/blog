@@ -56,12 +56,6 @@ class User implements UserInterface
     private $roles = [];
 
     /**
-     * @var string The hashed password
-     * @ORM\Column(type="string")
-     */
-    private $password;
-
-    /**
      * @var string
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(
@@ -103,7 +97,7 @@ class User implements UserInterface
      *      maxMessage = "Your password cannot be longer than {{ limit }} characters",
      * )
      */
-    private $plainPassword;
+    private $password;
 
     public function __construct()
     {
@@ -181,7 +175,7 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        $this->plainPassword = null;
+        // $this->plainPassword = null;
     }
 
     public function getFullName(): ?string
@@ -269,26 +263,5 @@ class User implements UserInterface
     public function isBlocked(): bool
     {
         return self::STATUS_BLOCKED === $this->getStatus();
-    }
-
-    public function getStatusConstants(): array
-    {
-        return [
-            self::STATUS_ACTIVE => self::STATUS_ACTIVE,
-            self::STATUS_BLOCKED => self::STATUS_BLOCKED,
-            self::STATUS_NOT_VERIFIED => self::STATUS_NOT_VERIFIED,
-        ];
-    }
-
-    public function getPlainPassword(): ?string
-    {
-        return $this->plainPassword;
-    }
-
-    public function setPlainPassword(?string $plainPassword): self
-    {
-        $this->plainPassword = $plainPassword;
-
-        return $this;
     }
 }
