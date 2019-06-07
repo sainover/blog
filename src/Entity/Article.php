@@ -280,4 +280,24 @@ class Article
 
         return $this;
     }
+
+    public function isEditable(): bool
+    {
+        return Article::STATUS_DRAFT === $this->getStatus();
+    }
+
+    public function isViewable(): bool
+    {
+        return Article::STATUS_PUBLISHED === $this->getStatus();
+    }
+
+    public function isAuthor(User $user): bool
+    {
+        return $this->getAuthor() === $user;
+    }
+
+    public function isDeletable(): bool
+    {
+        return in_array($this->getStatus(), [Article::STATUS_PUBLISHED, Article::STATUS_DECLINED]);
+    }
 }

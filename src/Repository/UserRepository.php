@@ -24,11 +24,23 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function findOneByToken(?string $token): ?User
+    public function findByToken(string $token): ?User
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.token = :val')
             ->setParameter('val', $token)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function findByLogin(string $email): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.email = :email')
+            ->setParameter('email', $email)
+            ->andWhere('u.status = :status')
+            ->setParameter('status', User::STATUS_ACTIVE)
             ->getQuery()
             ->getOneOrNullResult()
         ;

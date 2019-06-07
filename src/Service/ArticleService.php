@@ -9,24 +9,28 @@ use App\Entity\Regard;
 use App\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Security;
+use App\Repository\RegardRepository;
 
 class ArticleService
 {
     private $manager;
     private $currentUser;
+    private $regardRepository;
 
-    public function __construct(ObjectManager $manager, Security $security)
-    {
+    public function __construct(
+        ObjectManager $manager, 
+        Security $security,
+        RegardRepository $regardRepository
+    ) {
         $this->manager = $manager;
         $this->currentUser = $security->getUser();
+        $this->regardRepository = $regardRepository;
     }
 
     public function setArticleStatus(Article $article, string $status): void
     {
-        if (in_array(User::ROLE_ADMIN, $this->currentUser->getRoles())) {
-            $article->setStatus($status);
-            $this->updateArticle($article);
-        }
+        $article->setStatus($status);
+        $this->updateArticle($article);
     }
 
     public function sendToModeration(Article $article): void
@@ -60,9 +64,7 @@ class ArticleService
 
     public function toggleRegardArticle(Article $article, bool $value): int
     {
-        $regard = $this->manager
-            ->getRepository(Regard::class)
-            ->findOneBy(['author' => $this->currentUser, 'target' => $article]);
+        $regard = $this->regardRepository->findByAuthorAndTarget($this->currentUser, $article);
 
         if (null === $regard) {
             $regard = new Regard();
@@ -84,22 +86,7 @@ class ArticleService
         return $article->getRating();
     }
 
-    public function isEditableArticle($article): bool
-    {
-        return Article::STATUS_DRAFT === $article->getStatus();
-    }
-
-    public function isViewableArticle($article): bool
-    {
-        return Article::STATUS_PUBLISHED === $article->getStatus();
-    }
-
-    public function isAuthorArticle($user, $article): bool
-    {
-        return $article->getAuthor() === $user;
-    }
-
-    public function getArticleTagsAsArray($article): array
+    public function getArticleTagsAsArray(Article $article): array
     {
         $data['results'] = [];
 
