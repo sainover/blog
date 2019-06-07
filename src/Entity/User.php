@@ -35,8 +35,15 @@ class User implements UserInterface
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 255,
+     *      minMessage = "Your email must be at least {{ limmit }} characters long",
+     *      maxMessage = "Your email cannot be longer than {{ limit }} characters"
+     * )
      */
     private $email;
 
@@ -55,6 +62,13 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 255,
+     *      minMessage = "Your full name must be at least {{ limmit }} characters long",
+     *      maxMessage = "Your full name cannot be longer than {{ limit }} characters"
+     * )
      */
     private $fullName;
 
