@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Service\UserService;
@@ -37,10 +39,11 @@ class SecurityController extends AbstractController
     /**
      * @Route("/confirmation/{token}", name="confirmation", methods={"GET"})
      */
-    public function confirmation(String $token, UserService $userService)
+    public function confirmation(string $token, UserService $userService)
     {
         if ($userService->confirm($token)) {
             $this->addFlash('notice', 'Аккаунт успешно активирован');
+
             return $this->redirectToRoute('app_login');
         } else {
             throw $this->createNotFoundException('Страница не найдена');

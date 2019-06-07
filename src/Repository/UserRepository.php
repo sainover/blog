@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\User;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -41,8 +43,8 @@ class UserRepository extends ServiceEntityRepository
             }
 
             if ($field && in_array($type, self::ORDER_TYPES)) {
-                $query->orderBy('u.' . $field, $type);
-            }            
+                $query->orderBy('u.'.$field, $type);
+            }
         }
 
         return $query;
@@ -50,13 +52,13 @@ class UserRepository extends ServiceEntityRepository
 
     private function addSearchBy($query, array $searches)
     {
-        foreach($searches as $field => $value) {
+        foreach ($searches as $field => $value) {
             if (!$value) {
                 continue;
             }
 
-            $query->andWhere('u.' . $field . ' LIKE :value')
-                ->setParameter(':value', '%' . $value . '%')
+            $query->andWhere('u.'.$field.' LIKE :value')
+                ->setParameter(':value', '%'.$value.'%')
             ;
         }
 
@@ -65,8 +67,8 @@ class UserRepository extends ServiceEntityRepository
 
     private function addOptions($query, array $options)
     {
-        foreach($options as $field => $value) {
-            $query->andWhere('u.' . $field . ' = :value')
+        foreach ($options as $field => $value) {
+            $query->andWhere('u.'.$field.' = :value')
                 ->setParameter(':value', $value)
             ;
         }
@@ -80,6 +82,7 @@ class UserRepository extends ServiceEntityRepository
         $paginator->getQuery()
             ->setFirstResult($limit * ($page - 1))
             ->setMaxResults($limit);
+
         return $paginator;
     }
 

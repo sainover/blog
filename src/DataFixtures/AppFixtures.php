@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\Article;
@@ -29,7 +31,7 @@ class AppFixtures extends Fixture
 
     public function loadUsers(ObjectManager $manager): void
     {
-        foreach($this->getUserData() as [$email, $fullname, $password, $roles, $status, $token]) {
+        foreach ($this->getUserData() as [$email, $fullname, $password, $roles, $status, $token]) {
             $user = new User();
             $user->setEmail($email)
                 ->setFullName($fullname)
@@ -84,7 +86,7 @@ class AppFixtures extends Fixture
 
                 $regard = new Regard();
                 $regard->setAuthor($this->getReference($email));
-                $regard->setValue(random_int(0, 1) === 1 ? Regard::LIKE : Regard::DISLIKE);
+                $regard->setValue(1 === random_int(0, 1) ? Regard::LIKE : Regard::DISLIKE);
 
                 $article->addRegard($regard);
             }
@@ -109,9 +111,10 @@ class AppFixtures extends Fixture
     private function getUserEmails(): array
     {
         $emails = [];
-        foreach($this->getUserData() as [$email]) {
+        foreach ($this->getUserData() as [$email]) {
             $emails[] = $email;
         }
+
         return $emails;
     }
 
@@ -136,7 +139,7 @@ class AppFixtures extends Fixture
         $statuses = Article::STATUSES_ALL;
 
         $articles = [];
-        foreach($this->getPhrases() as $title) {
+        foreach ($this->getPhrases() as $title) {
             $randEmail = $emails[array_rand($emails)];
             $randStatus = $statuses[array_rand($statuses)];
 

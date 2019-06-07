@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Entity\User;
 use App\Entity\Article;
-use App\Form\StatusType;
+use App\Entity\User;
 use App\Form\FilterType;
-use App\Service\ArticleService;
-use App\Service\AdminService;
+use App\Form\StatusType;
 use App\Repository\ArticleRepository;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\UserRepository;
+use App\Service\AdminService;
+use App\Service\ArticleService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin")
@@ -45,7 +47,7 @@ class AdminController extends AbstractController
      */
     public function adminArticles(Request $request, ArticleRepository $articleRepository)
     {
-        $page = $request->query->get('page') ? : 1;
+        $page = $request->query->get('page') ?: 1;
 
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
@@ -54,8 +56,8 @@ class AdminController extends AbstractController
         $searches = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->getData()['status'] !== null) {
-                $options['statuses'][] =  $form->getData()['status'];
+            if (null !== $form->getData()['status']) {
+                $options['statuses'][] = $form->getData()['status'];
             } else {
                 $options['statuses'] = array_values(Article::STATUSES_VIEWABLE_TO_ADMIN);
             }
@@ -86,12 +88,13 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $status = $form->getData()['status'];
             $this->articleService->setArticleStatus($article, $status);
+
             return $this->redirectToRoute('admin_articles');
         }
 
         return $this->render('admin/article/edit.html.twig', [
             'article' => $article,
-            'form'=> $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -100,8 +103,8 @@ class AdminController extends AbstractController
      */
     public function adminUsers(Request $request, UserRepository $userRepository)
     {
-        $page = $request->get('page') ? : 1;
-        $query =  $request->get('query');
+        $page = $request->get('page') ?: 1;
+        $query = $request->get('query');
         $sortBy = $request->get('sortBy');
         $sortType = $request->get('sortType');
 
@@ -121,6 +124,7 @@ class AdminController extends AbstractController
     public function adminUsersEmails(Request $request): JsonResponse
     {
         $data = $this->adminService->searchUsersEmailsAsArray($request->get('query'));
+
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
@@ -130,6 +134,7 @@ class AdminController extends AbstractController
     public function adminUserBlock(User $user)
     {
         $this->adminService->blockUser($user);
+
         return $this->redirectToRoute('admin_users');
     }
 
@@ -139,6 +144,7 @@ class AdminController extends AbstractController
     public function adminUserActivate(User $user)
     {
         $this->adminService->activateUser($user);
+
         return $this->redirectToRoute('admin_users');
     }
 }

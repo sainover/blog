@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,7 +18,7 @@ class Article
     public const STATUS_DRAFT = 'Draft';
     public const STATUS_MODERATION = 'On moderation';
     public const STATUS_PUBLISHED = 'Published';
-    public const STATUS_DECLINED= 'Declined';
+    public const STATUS_DECLINED = 'Declined';
 
     public const STATUSES_ALL = [
         self::STATUS_DRAFT => self::STATUS_DRAFT,
@@ -38,8 +40,8 @@ class Article
     ];
 
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
+     * @ORM\Id
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -56,8 +58,8 @@ class Article
 
     /**
      * @ORM\OneToMany(
-     *      targetEntity="App\Entity\Comment", 
-     *      mappedBy="target", 
+     *      targetEntity="App\Entity\Comment",
+     *      mappedBy="target",
      *      orphanRemoval=true,
      *      cascade={"persist"}
      * )
@@ -92,8 +94,8 @@ class Article
 
     /**
      * @ORM\OneToMany(
-     *      targetEntity="App\Entity\Regard", 
-     *      mappedBy="target", 
+     *      targetEntity="App\Entity\Regard",
+     *      mappedBy="target",
      *      orphanRemoval=true,
      *      cascade={"persist"}
      * )
@@ -189,7 +191,7 @@ class Article
 
     public function addTag(Tag ...$tags): void
     {
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             if (!$this->tags->contains($tag)) {
                 $this->tags->add($tag);
             }

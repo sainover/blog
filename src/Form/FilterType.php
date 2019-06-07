@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form;
 
 use App\Entity\Article;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class FilterType extends AbstractType
 {
@@ -24,10 +26,10 @@ class FilterType extends AbstractType
                 'placeholder' => 'Set status',
             ])
             ->add('dateFrom', DateType::class, [
-                'widget' => 'single_text'
+                'widget' => 'single_text',
             ])
             ->add('dateTo', DateType::class, [
-                'widget' => 'single_text'
+                'widget' => 'single_text',
             ])
         ;
     }
@@ -35,7 +37,7 @@ class FilterType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'required' => false
+            'required' => false,
             // Configure your form options here
         ]);
     }

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Entity\Regard;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
 class RatingUpdater implements EventSubscriber
@@ -47,8 +49,8 @@ class RatingUpdater implements EventSubscriber
         $regards = $article->getRegards();
 
         $rating = 0;
-        foreach($regards as $regard) {
-            $rating += $regard->getValue() === Regard::LIKE ? 1 : -1;
+        foreach ($regards as $regard) {
+            $rating += Regard::LIKE === $regard->getValue() ? 1 : -1;
         }
 
         return $rating;

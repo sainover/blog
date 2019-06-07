@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Article;
-use App\Entity\User;
 use App\Entity\Regard;
+use App\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Security;
 
@@ -12,7 +14,7 @@ class ArticleService
 {
     private $manager;
     private $currentUser;
-    
+
     public function __construct(ObjectManager $manager, Security $security)
     {
         $this->manager = $manager;
@@ -60,10 +62,10 @@ class ArticleService
     {
         $regard = $this->manager
             ->getRepository(Regard::class)
-            ->findOneBy(["author" => $this->currentUser, "target" => $article]);
-        
+            ->findOneBy(['author' => $this->currentUser, 'target' => $article]);
+
         if (null === $regard) {
-            $regard = new Regard;
+            $regard = new Regard();
             $regard
                 ->setAuthor($this->currentUser)
                 ->setTarget($article)
@@ -78,17 +80,18 @@ class ArticleService
         }
 
         $this->manager->flush();
+
         return $article->getRating();
     }
 
     public function isEditableArticle($article): bool
     {
-        return $article->getStatus() === Article::STATUS_DRAFT;
+        return Article::STATUS_DRAFT === $article->getStatus();
     }
 
     public function isViewableArticle($article): bool
     {
-        return $article->getStatus() === Article::STATUS_PUBLISHED;
+        return Article::STATUS_PUBLISHED === $article->getStatus();
     }
 
     public function isAuthorArticle($user, $article): bool
@@ -99,10 +102,10 @@ class ArticleService
     public function getArticleTagsAsArray($article): array
     {
         $data['results'] = [];
-        
+
         $articleTags = $article->getTags();
 
-        foreach($articleTags as $tag) {
+        foreach ($articleTags as $tag) {
             $item['id'] = $tag->getId();
             $item['text'] = $tag->getName();
             $data['results'][] = $item;

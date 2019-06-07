@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Repository\TagRepository;
@@ -17,11 +19,12 @@ class TagService
     {
         $data['results'] = [];
         $tags = $this->tagRepository->findAll();
-        foreach($tags as $tag) {
+        foreach ($tags as $tag) {
             $item['id'] = $tag->getId();
             $item['text'] = $tag->getName();
             $data['results'][] = $item;
         }
+
         return $data;
     }
 }
