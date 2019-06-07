@@ -33,16 +33,6 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/", name="admin")
-     */
-    public function index()
-    {
-        return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminController',
-        ]);
-    }
-
-    /**
      * @Route("/articles", name="admin_articles", methods={"GET", "POST"})
      */
     public function adminArticles(Request $request, ArticleRepository $articleRepository)
@@ -104,11 +94,10 @@ class AdminController extends AbstractController
     public function adminUsers(Request $request, UserRepository $userRepository)
     {
         $page = $request->get('page') ?: 1;
-        $query = $request->get('query');
-        $sortBy = $request->get('sortBy');
-        $sortType = $request->get('sortType');
+        $searches['email'] = $request->get('query');
+        $orders[$request->get('sortBy')] = $request->get('sortType');
 
-        $users = $userRepository->customFind($page, [], ['email' => $query], [$sortBy => $sortType]);
+        $users = $userRepository->customFind($page, [], $searches, $orders);
         $maxPages = ceil(count($users) / User::COUNT_ON_PAGE);
 
         return $this->render('admin/user/index.html.twig', [

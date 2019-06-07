@@ -32,7 +32,7 @@ class UserService
         $user->setPassword(
             $this->passwordEncoder->encodePassword(
                 $user,
-                $user->getPlainPassword()
+                $user->getPassword()
             )
         );
         $user->eraseCredentials();
@@ -42,9 +42,7 @@ class UserService
         $this->manager->persist($user);
         $this->manager->flush();
 
-        if (!$this->emailsService->sendEmailConfirmation($user)) {
-            $this->addFlash('warning', 'An error occurred while sending the message.');
-        }
+        $this->emailsService->sendEmailConfirmation($user);
     }
 
     public function confirm(User $user): void

@@ -64,6 +64,8 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
+
             $this->commentService->createComment($comment, $article);
             $this->addFlash(
                 'success_comment',

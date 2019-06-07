@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Regard;
+use App\Entity\Article;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -19,6 +21,18 @@ class RegardRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Regard::class);
+    }
+
+    public function findByAuthorAndTarget(User $author, Article $target): ?Regard
+    {
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.author = :author')
+            ->setParameter('author', $author)
+            ->andWhere('r.target = :target')
+            ->setParameter('target', $target)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 
     // /**

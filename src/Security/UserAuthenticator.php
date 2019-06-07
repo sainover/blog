@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -21,6 +20,7 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class UserAuthenticator extends AbstractFormLoginAuthenticator
 {
@@ -30,19 +30,25 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
     private $urlGenerator;
     private $csrfTokenManager;
     private $passwordEncoder;
+    private $userRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UrlGeneratorInterface $urlGenerator,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        UserRepository $userRepository
+    ) {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->userRepository = $userRepository;
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
-        return 'app_login' === $request->attributes->get('_route')
-            && $request->isMethod('POST');
+        return 'app_login' === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
     public function getCredentials(Request $request)
@@ -52,10 +58,8 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
             'password' => $request->request->get('password'),
             'csrf_token' => $request->request->get('_csrf_token'),
         ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['email']
-        );
+
+        $request->getSession()->set(Security::LAST_USERNAME, $credentials['email']);
 
         return $credentials;
     }
@@ -67,11 +71,10 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
+        $user = $this->userRepository->findByLogin($credentials['email']);
 
         if (!$user) {
-            // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Email could not be found.');
+            throw new CustomUserMessageAuthenticationException('User could not be found.');
         }
 
         return $user;
@@ -79,12 +82,8 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        if ($user->isBlocked()) {
-            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Account blocked.');
-        } elseif (!empty($user->getToken())) {
-            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Please, confirm your email.');
-        } elseif (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
-            throw new \Symfony\Component\Security\Core\Exception\AuthenticationException('Wrong password.');
+        if (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
+            throw new AuthenticationException('Invalid credentials');
         }
 
         return true;
@@ -92,17 +91,18 @@ class UserAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-            return new RedirectResponse($targetPath);
+        $targetPath = $this->getTargetPath($request->getSession(), $providerKey);
+
+        if (null === $targetPath) {
+            $targetPath = $this->urlGenerator->generate('index');
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('index'));
+        return new RedirectResponse($targetPath);
     }
 
-    public function onAuthenticationFailure(Request $request, \Symfony\Component\Security\Core\Exception\AuthenticationException $exception)
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $session = new Session();
-        $session->getFlashBag()->add('warning', $exception->getMessage());
+        $request->getSession()->getFlashBag()->add('warning', $exception->getMessage());
 
         return new RedirectResponse($this->getLoginurl());
     }
