@@ -32,11 +32,9 @@ class RegistrationController extends AbstractController
 
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            $this->userService->register($user, $plainPassword);
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            $this->userService->register($user);
             $this->addFlash('notice', 'You successfully register. Check your email to activate confirmation,');
 
             return $this->redirectToRoute('app_login');

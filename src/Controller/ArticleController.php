@@ -82,6 +82,7 @@ class ArticleController extends AbstractController
      */
     public function articleLike(Article $article): Response
     {
+        $this->denyAccessUnlessGranted(ArticleVoter::REGARD, $article);
         $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::LIKE);
 
         return new Response($ratingValue, Response::HTTP_OK);
@@ -92,6 +93,7 @@ class ArticleController extends AbstractController
      */
     public function articleDislike(Article $article): Response
     {
+        $this->denyAccessUnlessGranted(ArticleVoter::REGARD, $article);
         $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::DISLIKE);
 
         return new Response($ratingValue, Response::HTTP_OK);
