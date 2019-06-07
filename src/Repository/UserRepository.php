@@ -24,7 +24,7 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function customFind(?int $page = 1, array $options = [], ?array $searches = [], ?array $orders = []): Paginator
+    public function customFind($page = 1, ?array $options = [], ?array $searches = [], ?array $orders = []): Paginator
     {
         $qb = $this->createQueryBuilder('u');
 
@@ -76,7 +76,7 @@ class UserRepository extends ServiceEntityRepository
         return $query;
     }
 
-    public function paginate($dql, int $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
+    public function paginate($dql, $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
     {
         $paginator = new Paginator($dql);
         $paginator->getQuery()

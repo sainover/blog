@@ -29,4 +29,6 @@ services:
 
     App\EventListener\RatingUpdater:
         tags:
-            - { name: doctrine.event_listener, event: postPerist }
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: postRemove }

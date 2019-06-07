@@ -15,6 +15,8 @@ class RatingUpdater implements EventSubscriber
     {
         return [
             Events::postPersist,
+            Events::postUpdate,
+            Events::postRemove,
         ];
     }
 
@@ -23,7 +25,12 @@ class RatingUpdater implements EventSubscriber
         $this->index($args);
     }
 
-    public function postPerist(LifecycleEventArgs $args)
+    public function postPersist(LifecycleEventArgs $args)
+    {
+        $this->index($args);
+    }
+
+    public function postRemove(LifecycleEventArgs $args)
     {
         $this->index($args);
     }

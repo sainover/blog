@@ -37,7 +37,9 @@ class User implements UserInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email
-     * @Assert\NotBlank
+     * @Assert\NotBlank(
+     *      message = "Email cannot be empty"
+     * )
      * @Assert\Length(
      *      min = 2,
      *      max = 255,
@@ -62,7 +64,9 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
+     * @Assert\NotBlank(
+     *      message = "Email cannot be empty"
+     * )
      * @Assert\Length(
      *      min = 2,
      *      max = 255,
