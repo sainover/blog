@@ -6,39 +6,41 @@ namespace App\Service;
 
 use App\Entity\Article;
 use App\Entity\Regard;
-use App\Entity\User;
+use App\Repository\RegardRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Security;
-use App\Repository\RegardRepository;
 
 class ArticleService
 {
     private $manager;
-    private $currentUser;
     private $regardRepository;
+    private $security;
 
     public function __construct(
-        ObjectManager $manager, 
+        ObjectManager $manager,
         Security $security,
         RegardRepository $regardRepository
     ) {
         $this->manager = $manager;
-        $this->currentUser = $security->getUser();
+        $this->security = $security;
         $this->regardRepository = $regardRepository;
     }
 
     public function setArticleStatus(Article $article, string $status): void
     {
         $article->setStatus($status);
-        $this->updateArticle($article);
+        if (Article::STATUS_PUBLISHED === $status) {
+            $article->setPublishedAt(new \DateTime());
+        }
+        $this->manager->persist($article);
+        $this->manager->flush();
     }
 
     public function sendToModeration(Article $article): void
     {
-        if (in_array(User::ROLE_USER, $this->currentUser->getRoles())) {
-            $article->setStatus(Article::STATUS_MODERATION);
-            $this->updateArticle($article);
-        }
+        $article->setStatus(Article::STATUS_MODERATION);
+        $this->manager->persist($article);
+        $this->manager->flush();
     }
 
     public function deleteArticle(Article $article): void
@@ -49,27 +51,25 @@ class ArticleService
 
     public function createArticle(Article $article): void
     {
-        $article->setAuthor($this->currentUser);
+        $user = $this->security->getUser();
+
+        $article->setAuthor($user);
         $article->setStatus(Article::STATUS_DRAFT);
         $article->setRating(0);
         $this->manager->persist($article);
         $this->manager->flush();
     }
 
-    public function updateArticle(Article $article): void
-    {
-        $this->manager->persist($article);
-        $this->manager->flush();
-    }
-
     public function toggleRegardArticle(Article $article, bool $value): int
     {
-        $regard = $this->regardRepository->findByAuthorAndTarget($this->currentUser, $article);
+        $user = $this->security->getUser();
+
+        $regard = $this->regardRepository->findByAuthorAndTarget($user, $article);
 
         if (null === $regard) {
             $regard = new Regard();
             $regard
-                ->setAuthor($this->currentUser)
+                ->setAuthor($user)
                 ->setTarget($article)
             ;
         }
@@ -91,11 +91,11 @@ class ArticleService
         $data['results'] = [];
 
         $articleTags = $article->getTags();
-
         foreach ($articleTags as $tag) {
-            $item['id'] = $tag->getId();
-            $item['text'] = $tag->getName();
-            $data['results'][] = $item;
+            $data['results'][] = [
+                'item' => $tag->getId(),
+                'text' => $tag->getName(),
+            ];
         }
 
         return $data;

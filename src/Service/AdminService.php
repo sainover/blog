@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 
 class AdminService
 {
     private $manager;
+    private $userRepository;
 
     public function __construct(
-        ObjectManager $manager
+        ObjectManager $manager,
+        UserRepository $userRepository
     ) {
         $this->manager = $manager;
+        $this->userRepository = $userRepository;
     }
 
     public function blockUser(User $user)
@@ -34,9 +38,8 @@ class AdminService
     public function searchUsersEmailsAsArray($query): array
     {
         $data = [];
-        $users = $this->manager
-            ->getRepository(User::class)
-            ->customFind(null, [], ['email' => $query], []);
+        $users = $this->userRepository
+            ->searchByEmail($query);
 
         foreach ($users as $user) {
             $data[] = $user->getEmail();

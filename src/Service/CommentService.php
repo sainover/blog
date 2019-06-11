@@ -12,22 +12,24 @@ use Symfony\Component\Security\Core\Security;
 class CommentService
 {
     private $manager;
-    private $currentUser;
-    private $articleService;
+    private $security;
 
-    public function __construct(ObjectManager $manager, Security $security, ArticleService $articleService)
+    public function __construct(ObjectManager $manager, Security $security)
     {
         $this->manager = $manager;
-        $this->currentUser = $security->getUser();
-        $this->articleService = $articleService;
+        $this->security = $security;
     }
 
     public function createComment(Comment $comment, Article $article): void
     {
-        $comment->setAuthor($this->currentUser);
+        $user = $this->security->getUser();
+
+        $comment->setAuthor($user);
         $comment->setTarget($article);
 
         $article->addComment($comment);
-        $this->articleService->updateArticle($article);
+
+        $this->manager->persist($article);
+        $this->manager->flush();
     }
 }

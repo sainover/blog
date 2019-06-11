@@ -29,7 +29,7 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/logout", name="app_logout", methods={"GET"})
+     * @Route("/logout", name="app_logout")
      */
     public function logout()
     {
@@ -37,7 +37,7 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/confirmation/{token}", name="confirmation", methods={"GET"})
+     * @Route("/confirmation/{token}", name="confirmation")
      */
     public function confirmation(UserRepository $userRepository, string $token, UserService $userService): Response
     {

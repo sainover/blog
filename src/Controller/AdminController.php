@@ -37,31 +37,30 @@ class AdminController extends AbstractController
      */
     public function adminArticles(Request $request, ArticleRepository $articleRepository)
     {
-        $page = $request->query->get('page') ?: 1;
+        $filter = [
+            'page' => $request->query->getInt('page', 1),
+            'status' => null,
+            'email' => null,
+            'dateFrom' => null,
+            'dateTo' => null,
+        ];
 
         $form = $this->createForm(FilterType::class);
-        $form->handleRequest($request);
 
-        $options = [];
-        $searches = [];
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (null !== $form->getData()['status']) {
-                $options['statuses'][] = $form->getData()['status'];
-            } else {
-                $options['statuses'] = array_values(Article::STATUSES_VIEWABLE_TO_ADMIN);
-            }
-            $searches['email'] = $form->getData()['email'];
-            $options['dateFrom'] = $form->getData()['dateFrom'];
-            $options['dateTo'] = $form->getData()['dateTo'];
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            $filter['status'] = $form->getData()['status'];
+            $filter['email'] = $form->getData()['email'];
+            $filter['dateFrom'] = $form->getData()['dateFrom'];
+            $filter['dateTo'] = $form->getData()['dateTo'];
         }
 
-        $articles = $articleRepository->customFind($page, $options, $searches);
+        $articles = $articleRepository->findForAdminpe($filter);
+
         $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
 
         return $this->render('admin/article/index.html.twig', [
             'form' => $form->createView(),
-            'thisPage' => $page,
+            'thisPage' => $filter['page'],
             'maxPages' => $maxPages,
             'articles' => $articles,
         ]);
@@ -73,9 +72,8 @@ class AdminController extends AbstractController
     public function adminArticleChangeStatus(Request $request, Article $article)
     {
         $form = $this->createForm(StatusType::class);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $status = $form->getData()['status'];
             $this->articleService->setArticleStatus($article, $status);
 
@@ -89,15 +87,18 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/users", name="admin_users", methods={"GET"})
+     * @Route("/users", name="admin_users")
      */
     public function adminUsers(Request $request, UserRepository $userRepository)
     {
-        $page = $request->get('page') ?: 1;
-        $searches['email'] = $request->get('query');
-        $orders[$request->get('sortBy')] = $request->get('sortType');
+        $page = $request->query->getInt('page', 1);
+        $filter = [
+            'email' => $request->get('query'),
+            'orderBy' => $request->get('sortBy'),
+            'orderType' => $request->get('sortType'),
+        ];
 
-        $users = $userRepository->customFind($page, [], $searches, $orders);
+        $users = $userRepository->findForAdminpe($page, $filter);
         $maxPages = ceil(count($users) / User::COUNT_ON_PAGE);
 
         return $this->render('admin/user/index.html.twig', [
@@ -108,7 +109,7 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/users/emails", name="admin_users_emails", methods={"GET"})
+     * @Route("/users/emails", name="admin_users_emails")
      */
     public function adminUsersEmails(Request $request): JsonResponse
     {
@@ -120,7 +121,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/user/{id}/block", name="admin_user_block", methods={"GET", "POST"})
      */
-    public function adminUserBlock(User $user)
+    public function adminUserBlock(User $user): Response
     {
         $this->adminService->blockUser($user);
 
@@ -130,7 +131,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/user/{id}/activate", name="admin_user_activate", methods={"GET", "POST"})
      */
-    public function adminUserActivate(User $user)
+    public function adminUserActivate(User $user): Response
     {
         $this->adminService->activateUser($user);
 

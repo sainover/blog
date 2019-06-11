@@ -17,8 +17,6 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public const ORDER_TYPES = ['ASC', 'DESC'];
-
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, User::class);
@@ -27,8 +25,7 @@ class UserRepository extends ServiceEntityRepository
     public function findByToken(string $token): ?User
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.token = :val')
-            ->setParameter('val', $token)
+            ->andWhere('u.token = :val')->setParameter('val', $token)
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -37,65 +34,35 @@ class UserRepository extends ServiceEntityRepository
     public function findByLogin(string $email): ?User
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.email = :email')
-            ->setParameter('email', $email)
-            ->andWhere('u.status = :status')
-            ->setParameter('status', User::STATUS_ACTIVE)
+            ->andWhere('u.email = :email')->setParameter('email', $email)
+            ->andWhere('u.status = :status')->setParameter('status', User::STATUS_ACTIVE)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
 
-    public function customFind($page = 1, ?array $options = [], ?array $searches = [], ?array $orders = []): Paginator
+    public function findForAdminpe(int $page, array $filter): Paginator
     {
-        $qb = $this->createQueryBuilder('u');
+        $qb = $this->createQueryBuilder('u')
+            ->andWhere('u.email LIKE :query')->setParameter('query', '%'.$filter['email'].'%')
+        ;
 
-        $qb = $this->addOptions($qb, $options);
-        $qb = $this->addOrders($qb, $orders);
-        $qb = $this->addSearchBy($qb, $searches);
-
-        return $this->paginate($qb->getQuery(), $page ?: 1);
-    }
-
-    private function addOrders($query, array $orders)
-    {
-        foreach ($orders as $field => $type) {
-            if (!$type) {
-                continue;
-            }
-
-            if ($field && in_array($type, self::ORDER_TYPES)) {
-                $query->orderBy('u.'.$field, $type);
-            }
+        if (null !== $filter['orderBy'] && in_array($filter['orderType'], ['ASC', 'DESC'])) {
+            $qb->orderBy('u.'.$filter['orderBy'], $filter['orderType']);
         }
 
-        return $query;
+        return $this->paginate($qb->getQuery(), $page, User::COUNT_ON_PAGE);
     }
 
-    private function addSearchBy($query, array $searches)
+    public function searchByEmail($query): array
     {
-        foreach ($searches as $field => $value) {
-            if (!$value) {
-                continue;
-            }
-
-            $query->andWhere('u.'.$field.' LIKE :value')
-                ->setParameter(':value', '%'.$value.'%')
-            ;
-        }
-
-        return $query;
-    }
-
-    private function addOptions($query, array $options)
-    {
-        foreach ($options as $field => $value) {
-            $query->andWhere('u.'.$field.' = :value')
-                ->setParameter(':value', $value)
-            ;
-        }
-
-        return $query;
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.email LIKE :query')->setParameter('query', '%'.$query.'%')
+            ->orderBy('u.email', 'ASC')
+            ->setMaxResults(User::COUNT_ON_PAGE)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 
     public function paginate($dql, $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
@@ -107,33 +74,4 @@ class UserRepository extends ServiceEntityRepository
 
         return $paginator;
     }
-
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orders('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?User
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

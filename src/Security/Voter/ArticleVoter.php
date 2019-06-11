@@ -17,7 +17,7 @@ class ArticleVoter extends Voter
     public const COMMENT = 'comment';
     public const REGARD = 'regard';
 
-    private const ACTIONS = [ self::DELETE, self::EDIT, self::SHOW, self::COMMENT, self::REGARD ];
+    private const ACTIONS = [self::DELETE, self::EDIT, self::SHOW, self::COMMENT, self::REGARD];
 
     protected function supports($attributes, $subject): bool
     {
@@ -27,7 +27,7 @@ class ArticleVoter extends Voter
     protected function voteOnAttribute($attribute, $article, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        
+
         switch ($attribute) {
             case self::EDIT:
                 return $this->canEdit($article, $user);
@@ -51,11 +51,7 @@ class ArticleVoter extends Voter
 
     public function canEdit(Article $article, User $user): bool
     {
-        if (!$user instanceof User) {
-            return false;
-        }
-
-        return $article->isEditable($article) && $article->isAuthor($user);
+        return $user instanceof User && $article->isAuthor($user) && $article->isEditable($article);
     }
 
     public function canView(Article $article): bool
@@ -65,28 +61,16 @@ class ArticleVoter extends Voter
 
     public function canDelete(Article $article, User $user): bool
     {
-        if (!$user instanceof User) {
-            return false;
-        }
-
-        return $article->isDeletable() && $article->isAuthor($user);
+        return $user instanceof User && $article->isAuthor($user) && $article->isDeletable();
     }
 
     public function canComment(User $user)
     {
-        if (!$user instanceof User) {
-            return false;
-        }
-
-        return true;
+        return $user instanceof User;
     }
 
     public function canRegard(User $user)
     {
-        if (!$user instanceof User) {
-            return false;
-        }
-
-        return true;
+        return $user instanceof User;
     }
 }

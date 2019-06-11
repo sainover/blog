@@ -9,6 +9,7 @@ use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +28,14 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name="user_article_index", methods={"GET"})
+     * @Route("/", name="user_article_index")
      */
     public function userArticleIndex(Request $request, ArticleRepository $articleRepository): Response
     {
-        $page = $request->query->get('page') ?: 1;
+        $page = $request->query->getInt('page', 1);
         $user = $this->getUser();
 
-        $userArticles = $articleRepository->customFind($page, ['author' => $user]);
+        $userArticles = $articleRepository->findByUser($page, $user);
         $maxPages = ceil(count($userArticles) / Article::COUNT_ON_PAGE);
 
         return $this->render('user/index.html.twig', [
@@ -52,9 +53,8 @@ class UserController extends AbstractController
     {
         $article = new Article();
         $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $this->articleService->createArticle($article);
 
             return $this->redirectToRoute('user_article_index');
@@ -68,7 +68,7 @@ class UserController extends AbstractController
     /**
      * @Route("/{id}/edit", name="user_article_edit", methods={"GET", "POST"})
      */
-    public function userArticleEdit(Article $article, Request $request): Response
+    public function userArticleEdit(ObjectManager $manager, Article $article, Request $request): Response
     {
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
@@ -76,7 +76,8 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->articleService->updateArticle($article);
+            $manager->persist($article);
+            $manager->flush();
 
             return $this->redirectToRoute('user_article_index');
         }
