@@ -35,7 +35,6 @@ class UserService
                 $user->getPassword()
             )
         );
-        $user->eraseCredentials();
         $user->setToken($this->tokenGeneratorService->generate());
         $user->setStatus(User::STATUS_NOT_VERIFIED);
 

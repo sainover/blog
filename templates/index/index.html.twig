@@ -18,7 +18,7 @@
           </span>
           {{ include('index/_article_regard.html.twig') }}
           <span>Comments {{ article.comments|length }}</span>       
-          <a class="btn btn-light" href="{{ path('article_show', {'id' : article.id}) }}">Read more</a>       
+          <a class="btn btn-primary" href="{{ path('article_show', {'id' : article.id}) }}">Read more</a>       
         </div>
       </div>
     {% endfor %}

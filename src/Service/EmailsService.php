@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\User;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Twig\Environment;
 
 class EmailsService
@@ -33,7 +34,7 @@ class EmailsService
             )
         ;
 
-        if ($this->mailer->send($message) == 0) {
+        if (0 === $this->mailer->send($message)) {
             throw new RuntimeException('An error occurred while sending the message.');
         }
     }

@@ -9,7 +9,6 @@ use App\Entity\Comment;
 use App\Entity\Regard;
 use App\Form\CommentType;
 use App\Repository\ArticleRepository;
-use App\Repository\TagRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
@@ -31,29 +30,28 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/", defaults={"page": "1"}, name="index", methods={"GET"})
+     * @Route("/", name="index")
      */
-    public function index(Request $request, ArticleRepository $articleRepository, TagRepository $tagRepository): Response
+    public function index(Request $request, ArticleRepository $articleRepository): Response
     {
-        $page = $request->query->get('page') ?: 1;
+        $articleFilter = [
+            'page' => $request->query->getInt('page', 1),
+            'tag' => $request->query->get('tag'),
+        ];
 
-        $tag = null;
-        if ($request->query->has('tag')) {
-            $tag = $tagRepository->findOneBy(['name' => $request->query->get('tag')]);
-        }
+        $articles = $articleRepository->findForHomepe($articleFilter);
 
-        $articles = $articleRepository->customFind($page, ['tag' => $tag, 'status' => Article::STATUS_PUBLISHED], [], ['publishedAt' => 'DESC']);
         $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
 
         return $this->render('index/index.html.twig', [
-            'thisPage' => $page,
+            'thisPage' => $articleFilter['page'],
             'maxPages' => $maxPages,
             'articles' => $articles,
         ]);
     }
 
     /**
-     * @Route("/article/{id}", name="article_show", methods={"POST", "GET"})
+     * @Route("/article/{id}", name="article_show", methods={"GET", "POST"})
      */
     public function articleShow(Request $request, Article $article): Response
     {
@@ -61,15 +59,14 @@ class ArticleController extends AbstractController
 
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
 
             $this->commentService->createComment($comment, $article);
             $this->addFlash(
-                'success_comment',
-                'You added commentary to article "'.$article->getTitle()
+                'notice',
+                'You added commentary to article "'.$article->getTitle().'"'
             );
         }
 
@@ -102,7 +99,7 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/article/{id}/tags", name="user_article_tags", methods={"GET"})
+     * @Route("/article/{id}/tags", name="user_article_tags")
      */
     public function userArticleTags(Article $article): JsonResponse
     {

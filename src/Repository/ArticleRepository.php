@@ -18,100 +18,66 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ArticleRepository extends ServiceEntityRepository
 {
-    public const ORDER_TYPES = ['ASC', 'DESC'];
-
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Article::class);
     }
 
-    public function customFind($page = 1, ?array $options = [], ?array $searches = [], ?array $orders = []): Paginator
+    public function findForHomepe($filter): Paginator
     {
-        $qb = $this->createQueryBuilder('a');
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.author', 'author')->addSelect('author')
+            ->leftJoin('a.tags', 'tags')->addSelect('tags')
+            ->leftJoin('a.comments', 'comments')->addSelect('comments')
+            ->where('a.status = :status')->setParameter('status', Article::STATUS_PUBLISHED)
+            ->orderBy('a.publishedAt', 'DESC')
+        ;
 
-        $qb = $this->addOptions($qb, $options);
-        $qb = $this->addSearches($qb, $searches);
-        $qb = $this->addOrders($qb, $orders);
-
-        return $this->paginate($qb->getQuery(), $page ?: 1);
-    }
-
-    private function addOrders($query, array $orders)
-    {
-        foreach ($orders as $field => $type) {
-            if ($field && in_array($type, self::ORDER_TYPES)) {
-                $query->orderBy('a.'.$field, $type);
-            }
+        if (null !== $filter['tag']) {
+            $qb->andWhere(':tag MEMBER OF a.tags')->setParameter('tag', $filter['tag']);
         }
 
-        return $query;
+        return $this->paginate($qb->getQuery(), $filter['page'], Article::COUNT_ON_PAGE);
     }
 
-    private function addSearches($query, array $searches)
+    public function findForAdminpe($filter): Paginator
     {
-        foreach ($searches as $field => $value) {
-            if (!$value) {
-                continue;
-            }
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.author', 'author')->addSelect('author')
+        ;
 
-            switch ($field) {
-                case 'email':
-                    $query
-                        ->innerJoin('a.author', 'u')
-                        ->andWhere('u.email LIKE :value')
-                        ->setParameter('value', '%'.$value.'%')
-                    ;
-                    break;
-                default:
-                    $query
-                        ->andWhere('a.'.$field.' LIKE :value')
-                        ->setParameter('value', '%'.$value.'%')
-                    ;
-            }
+        if (null !== $filter['status'] && in_array($filter['status'], Article::STATUSES_VIEWABLE_TO_ADMIN)) {
+            $qb->andWhere('a.status = :status')->setParameter('status', $filter['status']);
+        } else {
+            $qb->andWhere('a.status IN (:statuses)')->setParameter('statuses', array_values(Article::STATUSES_VIEWABLE_TO_ADMIN));
         }
 
-        return $query;
-    }
-
-    private function addOptions($query, array $options)
-    {
-        foreach ($options as $field => $value) {
-            if (!$value) {
-                continue;
-            }
-
-            switch ($field) {
-                case 'tag':
-                    $query->andWhere(':tag MEMBER OF a.tags')
-                        ->setParameter('tag', $value)
-                    ;
-                    break;
-                case 'statuses':
-                    $query->andWhere('a.status IN (:statuses)')
-                        ->setParameter('statuses', $value)
-                    ;
-                    break;
-                case 'dateFrom':
-                    $query->andWhere('a.publishedAt > :dateFrom')
-                        ->setParameter('dateFrom', $value)
-                    ;
-                    break;
-                case 'dateTo':
-                    $query->andWhere('a.publishedAt < :dateTo')
-                        ->setParameter('dateTo', $value)
-                    ;
-                    break;
-                default:
-                    $query->andWhere('a.'.$field.' = :value')
-                        ->setParameter('value', $value)
-                    ;
-            }
+        if (null !== $filter['email']) {
+            $qb->andWhere('author.email LIKE :query')->setParameter('query', '%'.$filter['email'].'%');
         }
 
-        return $query;
+        if (null !== $filter['dateFrom']) {
+            $qb->andWhere('a.publishedAt > :dateFrom')->setParameter('dateFrom', $filter['dateFrom']);
+        }
+
+        if (null !== $filter['dateTo']) {
+            $qb->andWhere('a.publishedAd < :dateTo')->setParameter('dateTo', $filter['dateTo']);
+        }
+
+        return $this->paginate($qb->getQuery(), $filter['page'], Article::COUNT_ON_PAGE);
     }
 
-    public function paginate($dql, $page = 1, int $limit = User::COUNT_ON_PAGE): Paginator
+    public function findByUser(int $page, User $user): Paginator
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.author = :val')
+            ->setParameter('val', $user)
+        ;
+
+        return $this->paginate($qb->getQuery(), $page, Article::COUNT_ON_PAGE);
+    }
+
+    public function paginate($dql, int $page, int $limit = Article::COUNT_ON_PAGE): Paginator
     {
         $paginator = new Paginator($dql);
         $paginator->getQuery()
@@ -121,33 +87,4 @@ class ArticleRepository extends ServiceEntityRepository
 
         return $paginator;
     }
-
-    // /**
-    //  * @return Article[] Returns an array of Article objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Article
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

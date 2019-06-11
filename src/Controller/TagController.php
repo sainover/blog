@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TagController extends AbstractController
 {
     /**
-     * @Route("/tags", name="tags", methods={"GET"})
+     * @Route("/tags", name="tags")
      */
     public function tags(TagService $tagService): JsonResponse
     {

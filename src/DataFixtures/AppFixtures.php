@@ -120,7 +120,8 @@ class AppFixtures extends Fixture
 
     private function getTagData(): array
     {
-        return ['Symfony',
+        return [
+            'Symfony',
             'PHP',
             'Python',
             'HTML',

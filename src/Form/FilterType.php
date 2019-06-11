@@ -18,11 +18,7 @@ class FilterType extends AbstractType
         $builder
             ->add('email')
             ->add('status', ChoiceType::class, [
-                'choices' => [
-                    Article::STATUS_DECLINED => Article::STATUS_DRAFT,
-                    Article::STATUS_MODERATION => Article::STATUS_MODERATION,
-                    Article::STATUS_PUBLISHED => Article::STATUS_PUBLISHED,
-                ],
+                'choices' => Article::STATUSES_VIEWABLE_TO_ADMIN,
                 'placeholder' => 'Set status',
             ])
             ->add('dateFrom', DateType::class, [
