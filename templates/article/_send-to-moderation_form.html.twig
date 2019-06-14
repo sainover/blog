@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('article_send-to-moderation', {'id': article.id}) }}" 
+    onsubmit="return confirm('Are you sure you want to send this article to moderation?');"
+>
+    <input type="hidden" name="_method" value="POST">
+    <input type="hidden" name="_token" value="{{ csrf_token('send-to-moderation' ~ article.id) }}">
+    <button class="btn" type="submit">Publish</button>
+</form>

@@ -25,11 +25,10 @@
 
 	const setTags = (e) => {
 		id = e.parentNode.id;
-		console.log(e);
 
 		$.ajax({
 			type: 'GET',
-			url: `/user/article/${id}/tags`,
+			url: `/article/${id}/tags`,
 			datatype: 'json',
 		}).done(response => {
 			const data = response['results'];
@@ -56,6 +55,10 @@
 
 	$('.tags').select2({
 		placeholder: 'Tags',
+		ajax: {
+			url: '/tags',
+			dataType: 'json'
+		}
 	});
 
 	$('.article_tags').each(function() {

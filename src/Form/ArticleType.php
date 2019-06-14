@@ -17,14 +17,23 @@ class ArticleType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('content', CKEditorType::class)
-            ->add('title')
+            ->add('title', null, [
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Header text input',
+                ]
+            ])
             ->add('tags', EntityType::class, [
                 'class' => Tag::class,
                 'expanded' => false,
                 'multiple' => true,
                 'required' => false,
+                'attr' => [
+                    'class' => 'tags article_tags form-control',
+                    'data-placeholder' => 'Add some tags',
+                ]
             ])
+            ->add('content', CKEditorType::class)
         ;
     }
 

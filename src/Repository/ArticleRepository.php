@@ -27,8 +27,8 @@ class ArticleRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.author', 'author')->addSelect('author')
-            ->leftJoin('a.tags', 'tags')->addSelect('tags')
-            ->leftJoin('a.comments', 'comments')->addSelect('comments')
+            ->leftJoin('a.tags', 't')->addSelect('t')
+            ->leftJoin('a.comments', 'c')->addSelect('c')
             ->where('a.status = :status')->setParameter('status', Article::STATUS_PUBLISHED)
             ->orderBy('a.publishedAt', 'DESC')
         ;
@@ -38,6 +38,20 @@ class ArticleRepository extends ServiceEntityRepository
         }
 
         return $this->paginate($qb->getQuery(), $filter['page'], Article::COUNT_ON_PAGE);
+    }
+
+    public function findForArticlepe($id): ?Article
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.id = :id')->setParameter('id', $id)
+            ->andWhere('a.status = :status')->setParameter('status', Article::STATUS_PUBLISHED)
+            ->leftJoin('a.author', 'author')->addSelect('author')
+            ->leftJoin('a.tags', 't')->addSelect('t')
+            ->leftJoin('a.comments', 'c')->addSelect('c')
+            ->leftJoin('c.author', 'ca')->addSelect('ca')
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 
     public function findForAdminpe($filter): Paginator

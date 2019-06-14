@@ -12,7 +12,7 @@
     <div>
         <span>Author: {{ article.author.fullName }}</span>
         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-        {{ include('index/_article_regard.html.twig') }}
+        {{ include('includes/_article_regard.html.twig') }}
         <hr>
         <div>
             <h2>Comments:</h2>
@@ -22,10 +22,7 @@
                     <span>{{ comment.content }}</span>
                 </div>
             {% endfor %}
-            <div>
-                {% form_theme form 'bootstrap_4_layout.html.twig' %}
-                {{ form(form) }}
-            </div>
+            {{ commentForm.content|raw }}
         </div>
         {% endif %}
     </div>

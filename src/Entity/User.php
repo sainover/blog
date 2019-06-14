@@ -43,7 +43,7 @@ class User implements UserInterface
      * @Assert\Length(
      *      min = 2,
      *      max = 255,
-     *      minMessage = "Your email must be at least {{ limmit }} characters long",
+     *      minMessage = "Your email must be at least {{ limit }} characters long",
      *      maxMessage = "Your email cannot be longer than {{ limit }} characters"
      * )
      */
@@ -64,7 +64,7 @@ class User implements UserInterface
      * @Assert\Length(
      *      min = 2,
      *      max = 255,
-     *      minMessage = "Your full name must be at least {{ limmit }} characters long",
+     *      minMessage = "Your full name must be at least {{ limit }} characters long",
      *      maxMessage = "Your full name cannot be longer than {{ limit }} characters"
      * )
      */

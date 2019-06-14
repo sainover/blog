@@ -42,6 +42,12 @@ class Comment
      * @Assert\NotBlank(
      *      message = "Comment cannot be empty"
      * )
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 1024,
+     *      minMessage = "Content must be at least {{ limit }} characters long",
+     *      maxMessage = "Content cannot be longer than {{ limit }} characters"
+     * )
      */
     private $content;
 

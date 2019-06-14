@@ -55,7 +55,13 @@ class Article
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank(
-     *      message = "Email cannot be empty"
+     *      message = "Content cannot be empty"
+     * )
+     * @Assert\Length(
+     *      min = 32,
+     *      max = 2048,
+     *      minMessage = "Content must be at least {{ limit }} characters long",
+     *      maxMessage = "Content cannot be longer than {{ limit }} characters"
      * )
      */
     private $content;
@@ -73,7 +79,13 @@ class Article
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(
-     *      message = "Email cannot be empty"
+     *      message = "Title cannot be empty"
+     * )
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 512,
+     *      minMessage = "Title must be at least {{ limit }} characters long",
+     *      maxMessage = "Title cannot be longer than {{ limit }} characters"
      * )
      */
     private $title;
@@ -272,7 +284,7 @@ class Article
     {
         if ($this->regards->contains($regard)) {
             $this->regards->removeElement($regard);
-            // set the owning side to null (unless already changed)
+
             if ($regard->getTarget() === $this) {
                 $regard->setTarget(null);
             }
@@ -283,12 +295,12 @@ class Article
 
     public function isEditable(): bool
     {
-        return Article::STATUS_DRAFT === $this->getStatus();
+        return self::STATUS_DRAFT === $this->getStatus();
     }
 
     public function isViewable(): bool
     {
-        return Article::STATUS_PUBLISHED === $this->getStatus();
+        return self::STATUS_PUBLISHED === $this->getStatus();
     }
 
     public function isAuthor(User $user): bool
@@ -298,6 +310,6 @@ class Article
 
     public function isDeletable(): bool
     {
-        return in_array($this->getStatus(), [Article::STATUS_PUBLISHED, Article::STATUS_DECLINED]);
+        return in_array($this->getStatus(), [self::STATUS_PUBLISHED, self::STATUS_DECLINED]);
     }
 }
