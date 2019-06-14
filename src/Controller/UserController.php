@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Article;
-use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
-use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
-use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -21,7 +21,7 @@ class ArticleType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Header text input',
-                ]
+                ],
             ])
             ->add('tags', EntityType::class, [
                 'class' => Tag::class,
@@ -31,7 +31,7 @@ class ArticleType extends AbstractType
                 'attr' => [
                     'class' => 'tags article_tags form-control',
                     'data-placeholder' => 'Add some tags',
-                ]
+                ],
             ])
             ->add('content', CKEditorType::class)
         ;

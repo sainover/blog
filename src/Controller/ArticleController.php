@@ -7,18 +7,18 @@ namespace App\Controller;
 use App\Entity\Article;
 use App\Entity\Comment;
 use App\Entity\Regard;
+use App\Form\ArticleType;
 use App\Form\CommentType;
 use App\Repository\ArticleRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
+use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Common\Persistence\ObjectManager;
-use App\Form\ArticleType;
 
 class ArticleController extends AbstractController
 {
@@ -58,7 +58,7 @@ class ArticleController extends AbstractController
     public function show(Request $request, int $id, ArticleRepository $articleRepository): Response
     {
         $article = $articleRepository->findForArticlepe($id);
-        
+
         $commentForm = $this->addComment($request, $article);
 
         if (true === $commentForm) {
@@ -80,7 +80,7 @@ class ArticleController extends AbstractController
             $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
 
             $this->commentService->createComment($comment, $article);
-            
+
             $this->addFlash(
                 'notice',
                 sprintf('You added commentary to article %s', $article->getTitle())
@@ -94,7 +94,6 @@ class ArticleController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     /**
      * @Route("/new", name="user_article_new", methods={"GET", "POST"})
