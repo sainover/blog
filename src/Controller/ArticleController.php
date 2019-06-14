@@ -59,8 +59,6 @@ class ArticleController extends AbstractController
     {
         $article = $articleRepository->findForArticlepe($id);
         
-        $this->denyAccessUnlessGranted(ArticleVoter::SHOW, $article);
-
         $commentForm = $this->addComment($request, $article);
 
         if (true === $commentForm) {
@@ -75,12 +73,12 @@ class ArticleController extends AbstractController
 
     public function addComment(Request $request, Article $article)
     {
-        $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
-
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
+            $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
+
             $this->commentService->createComment($comment, $article);
             
             $this->addFlash(

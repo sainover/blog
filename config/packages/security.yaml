@@ -35,10 +35,10 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/article/new, roles: ROLE_USER }
-        - { path: ^/article/edit, roles: ROLE_USER }
-        - { path: ^/article/regard*, roles: ROLE_USER }
-        - { path: ^/article/delete*, roles: ROLE_USER }
+        - { path: ^/article/\d+/new, roles: ROLE_USER }
+        - { path: ^/article/\d+/edit, roles: ROLE_USER }
+        - { path: ^/article/\d+/regard, roles: ROLE_USER }
+        - { path: ^/article/\d+/delete, roles: ROLE_USER }
         - { path: ^/user*, roles: ROLE_USER }
     
     role_hierarchy:

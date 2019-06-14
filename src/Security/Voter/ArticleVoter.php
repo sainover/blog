@@ -14,9 +14,8 @@ class ArticleVoter extends Voter
     public const DELETE = 'delete';
     public const EDIT = 'edit';
     public const COMMENT = 'comment';
-    public const SHOW = 'show';
 
-    private const ACTIONS = [self::DELETE, self::SHOW, self::EDIT, self::COMMENT];
+    private const ACTIONS = [self::DELETE, self::EDIT, self::COMMENT];
 
     protected function supports($attributes, $subject): bool
     {
@@ -32,9 +31,6 @@ class ArticleVoter extends Voter
         }
 
         switch ($attribute) {
-            case self::SHOW:
-                return $this->canView($article, $user);
-                break;
             case self::EDIT:
                 return $this->canEdit($article, $user);
                 break;
@@ -47,11 +43,6 @@ class ArticleVoter extends Voter
         }
 
         throw new \LogicException('This code should not be reached!');
-    }
-
-    public  function canView(Article $article)
-    {
-        return $article->isViewable();
     }
 
     public function canEdit(Article $article, User $user): bool
