@@ -27,11 +27,11 @@
         <td>{{ article.status }}</td>
         <td>
           {% if article.status == constant('STATUS_DRAFT', article) %}
-            <a href="{{ path('user_article_edit', {id: article.id}) }}">Edit</a>
-            <a href="{{ path('publish', {id: article.id}) }}">Publish</a>
+            <a href="{{ path('article_edit', {id: article.id}) }}">Edit</a>
+            {{ include('article/_send-to-moderation_form.html.twig') }}
           {% endif %}
           {% if (article.status == constant('STATUS_DECLINED', article) or article.status == constant('STATUS_PUBLISHED', article))  %}
-            {{ include('user/article/_delete_form.html.twig') }}
+            {{ include('article/_delete_form.html.twig') }}
           {% endif %}
         </td>
       </tr>
@@ -39,31 +39,5 @@
   </tbody>
 </table>
 
-<div class="row justify-content-end mt-3">
-  <nav class="col">
-    <ul class="pagination justify-content-end">
-      <li class="page-item" {{ thisPage == 1 ? 'class="disabled"' }}>
-        <a class="page-link" href="{{ path('user_article_index', {
-          page: thisPage-1 < 1 ? 1 : thisPage-1,
-        }) }}">«</a>
-      </li>
-
-      {% for i in 1..maxPages %}
-        {% if i > 0 %}
-          <li class="page-item {{ thisPage == i ? 'active' }}" >
-            <a class="page-link" href="{{ path('user_article_index', {
-              page: i,
-            }) }}">{{ i }}</a>
-          </li>
-        {% endif %}
-      {% endfor %}
-
-      <li class="page-item" {{ thisPage == maxPages ? 'class="disabled"' }}>
-        <a class="page-link" href="{{ path('user_article_index', {
-          page: thisPage+1 <= maxPages ? thisPage+1 : thisPage,
-        }) }}">»</a>
-      </li>
-    </ul>
-  </nav>
-</div>
+{{ include('includes/_pagination.html.twig', {'pathName' : 'user_index'}) }}
 {% endblock %}

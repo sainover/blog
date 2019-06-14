@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index!{% endblock %}
+
+{% block body %}
+<div>
+  <div>
+    {% for article in articles %}
+      <div class="card mt-5">
+        <h5 class="card-header">{{ article.title }}</h5>
+        <div class="card-body">
+          {{ include('includes/_article_tags.html.twig') }}
+          <p class="card-text">{{ article.content|raw }}</p>
+        </div>
+        <div class="card-footer">
+          <span>
+            Author: <a href="#">{{ article.author.fullname }}</a>
+          </span>
+          {{ include('includes/_article_regard.html.twig') }}
+          <span>Comments {{ article.comments|length }}</span>       
+          <a class="btn btn-primary" href="{{ path('article_show', {'id' : article.id}) }}">Read more</a>       
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {{ include('includes/_pagination.html.twig', {'pathName' : 'index'}) }}
+
+</div>
+{% endblock %}

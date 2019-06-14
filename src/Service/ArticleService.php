@@ -36,14 +36,14 @@ class ArticleService
         $this->manager->flush();
     }
 
-    public function sendToModeration(Article $article): void
+    public function articleSendToModeration(Article $article): void
     {
         $article->setStatus(Article::STATUS_MODERATION);
         $this->manager->persist($article);
         $this->manager->flush();
     }
 
-    public function deleteArticle(Article $article): void
+    public function removeArticle(Article $article): void
     {
         $this->manager->remove($article);
         $this->manager->flush();
@@ -86,7 +86,7 @@ class ArticleService
         return $article->getRating();
     }
 
-    public function getArticleTagsAsArray(Article $article): array
+    public function getArticleTags(Article $article): array
     {
         $data['results'] = [];
 

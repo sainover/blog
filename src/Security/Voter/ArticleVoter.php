@@ -13,11 +13,10 @@ class ArticleVoter extends Voter
 {
     public const DELETE = 'delete';
     public const EDIT = 'edit';
-    public const SHOW = 'show';
     public const COMMENT = 'comment';
-    public const REGARD = 'regard';
+    public const SHOW = 'show';
 
-    private const ACTIONS = [self::DELETE, self::EDIT, self::SHOW, self::COMMENT, self::REGARD];
+    private const ACTIONS = [self::DELETE, self::SHOW, self::EDIT, self::COMMENT];
 
     protected function supports($attributes, $subject): bool
     {
@@ -28,49 +27,45 @@ class ArticleVoter extends Voter
     {
         $user = $token->getUser();
 
+        if (!$user instanceof User) {
+            return false;
+        }
+
         switch ($attribute) {
+            case self::SHOW:
+                return $this->canView($article, $user);
+                break;
             case self::EDIT:
                 return $this->canEdit($article, $user);
-                break;
-            case self::SHOW:
-                return $this->canView($article);
                 break;
             case self::DELETE:
                 return $this->canDelete($article, $user);
                 break;
             case self::COMMENT:
-                return $this->canComment($user);
-                break;
-            case self::REGARD:
-                return $this->canRegard($user);
+                return $this->canComment($article, $user);
                 break;
         }
 
         throw new \LogicException('This code should not be reached!');
     }
 
-    public function canEdit(Article $article, User $user): bool
-    {
-        return $user instanceof User && $article->isAuthor($user) && $article->isEditable($article);
-    }
-
-    public function canView(Article $article): bool
+    public  function canView(Article $article)
     {
         return $article->isViewable();
     }
 
+    public function canEdit(Article $article, User $user): bool
+    {
+        return $article->isAuthor($user) && $article->isEditable($article);
+    }
+
     public function canDelete(Article $article, User $user): bool
     {
-        return $user instanceof User && $article->isAuthor($user) && $article->isDeletable();
+        return $article->isAuthor($user) && $article->isDeletable();
     }
 
-    public function canComment(User $user)
+    public function canComment(Article $article, User $user)
     {
-        return $user instanceof User;
-    }
-
-    public function canRegard(User $user)
-    {
-        return $user instanceof User;
+        return true;
     }
 }

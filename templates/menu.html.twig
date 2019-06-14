@@ -18,7 +18,7 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-          <a class="dropdown-item" href="{{ path('user_article_index') }}">My articles</a>
+          <a class="dropdown-item" href="{{ path('user_index') }}">My articles</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a>
         {% else %}

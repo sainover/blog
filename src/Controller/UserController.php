@@ -28,9 +28,9 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/", name="user_article_index")
+     * @Route("/", name="user_index")
      */
-    public function userArticleIndex(Request $request, ArticleRepository $articleRepository): Response
+    public function index(Request $request, ArticleRepository $articleRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $user = $this->getUser();
@@ -44,72 +44,5 @@ class UserController extends AbstractController
             'thisPage' => $page,
             'articles' => $userArticles,
         ]);
-    }
-
-    /**
-     * @Route("/new", name="user_article_new", methods={"GET", "POST"})
-     */
-    public function userArticleNew(Request $request): Response
-    {
-        $article = new Article();
-        $form = $this->createForm(ArticleType::class, $article);
-
-        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->articleService->createArticle($article);
-
-            return $this->redirectToRoute('user_article_index');
-        }
-
-        return $this->render('user/article/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/{id}/edit", name="user_article_edit", methods={"GET", "POST"})
-     */
-    public function userArticleEdit(ObjectManager $manager, Article $article, Request $request): Response
-    {
-        $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
-
-        $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $manager->persist($article);
-            $manager->flush();
-
-            return $this->redirectToRoute('user_article_index');
-        }
-
-        return $this->render('user/article/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="user_article_delete", methods={"DELETE"})
-     */
-    public function userArticleDelete(Request $request, Article $article): Response
-    {
-        $this->denyAccessUnlessGranted(ArticleVoter::DELETE, $article);
-
-        if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
-            $this->articleService->deleteArticle($article);
-
-            return $this->redirectToRoute('user_article_index');
-        }
-    }
-
-    /**
-     * @Route("/{id}/publish", name="publish", methods={"GET", "POST"})
-     */
-    public function userArticleSendToModeration(Article $article): Response
-    {
-        $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
-
-        $this->articleService->sendToModeration($article);
-
-        return $this->redirectToRoute('user_article_index');
     }
 }
