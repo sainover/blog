@@ -33,7 +33,7 @@ class UserController extends AbstractController
         $user = $this->getUser();
 
         $userArticles = $articleRepository->findByUser($page, $user);
-        $maxPages = ceil(count($userArticles) / Article::COUNT_ON_PAGE);
+        $maxPages = ceil(count($userArticles) / $userArticles->getQuery()->getMaxResults());
 
         return $this->render('user/index.html.twig', [
             'user' => $user,

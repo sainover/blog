@@ -41,7 +41,7 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findForAdminpe(int $page, array $filter): Paginator
+    public function findForAdminPage(int $page, array $filter): Paginator
     {
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.email LIKE :query')->setParameter('query', '%'.$filter['email'].'%')

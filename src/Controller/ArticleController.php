@@ -41,9 +41,8 @@ class ArticleController extends AbstractController
             'tag' => $request->query->get('tag'),
         ];
 
-        $articles = $articleRepository->findForHomepe($articleFilter);
-
-        $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
+        $articles = $articleRepository->findForHomePage($articleFilter);
+        $maxPages = ceil(count($articles) / $articles->getQuery()->getMaxResults());
 
         return $this->render('article/index.html.twig', [
             'thisPage' => $articleFilter['page'],
@@ -53,46 +52,39 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/article/{id}", name="article_show", methods={"GET", "POST"})
+     * @Route("/article/{id}", name="article_show", methods={"GET"})
      */
-    public function show(Request $request, int $id, ArticleRepository $articleRepository): Response
+    public function show(int $id, ArticleRepository $articleRepository): Response
     {
-        $article = $articleRepository->findForArticlepe($id);
+        $article = $articleRepository->findForArticlePage($id);
 
-        $commentForm = $this->addComment($request, $article);
-
-        if (true === $commentForm) {
-            return $this->redirectToRoute('article_show', ['id' => $article->getId()]);
-        }
+        $form = $this->createForm(CommentType::class);
 
         return $this->render('article/show.html.twig', [
             'article' => $article,
-            'commentForm' => $commentForm,
+            'form' => $form->createView(),
         ]);
     }
 
-    public function addComment(Request $request, Article $article)
+    /**
+     * @Route("article/{id}/comment", name="article_comment", methods={"POST"})
+     */
+    public function addComment(Request $request, Article $article): Response
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
+        $form->setAction($this->generateUrl('article_comment', ['id' => $article->getId()]));
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->denyAccessUnlessGranted(ArticleVoter::COMMENT, $article);
-
             $this->commentService->createComment($comment, $article);
 
             $this->addFlash(
                 'notice',
                 sprintf('You added commentary to article %s', $article->getTitle())
             );
-
-            return true;
         }
 
-        return $this->render('article/_comment_form.html.twig', [
-            'comment' => $comment,
-            'form' => $form->createView(),
-        ]);
+        return $this->redirectToRoute('article_show', ['id' => $article->getId()]);
     }
 
     /**
