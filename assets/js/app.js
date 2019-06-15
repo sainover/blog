@@ -16,6 +16,7 @@ require('bootstrap');
 
 const setTags = (e) => {
     const id = e.parentNode.id;
+    console.log(e);
 
     $.ajax({
         type: 'GET',
@@ -59,7 +60,7 @@ $(document).ready(() => {
     });
 
     $('.article_tags').each(function() {
-        setTags($(this)[0]);
+        //setTags($(this)[0]);
     });
 
     $('.article_like').click(() => {

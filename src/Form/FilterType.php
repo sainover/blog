@@ -21,7 +21,7 @@ class FilterType extends AbstractType
                 'attr' => [
                     'autocomplete' => 'off',
                     'placeholder' => 'User email',
-                    'class' => 'autocomplete_input'
+                    'class' => 'autocomplete_input',
                 ],
             ])
             ->add('status', ChoiceType::class, [

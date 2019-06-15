@@ -91,7 +91,7 @@ class ArticleService
         $rating = 0;
 
         $regards = $article->getRegards();
-        foreach($regards as $regard) {
+        foreach ($regards as $regard) {
             $rating += $regard->getValue() ? 1 : -1;
         }
 
