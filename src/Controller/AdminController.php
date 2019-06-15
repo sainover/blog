@@ -10,13 +10,13 @@ use App\Form\FilterType;
 use App\Form\StatusType;
 use App\Repository\ArticleRepository;
 use App\Repository\UserRepository;
-use App\Service\AdminService;
 use App\Service\ArticleService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\UserService;
 
 /**
  * @Route("/admin")
@@ -24,18 +24,18 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminController extends AbstractController
 {
     private $articleService;
-    private $adminService;
+    private $userService;
 
-    public function __construct(ArticleService $articleService, AdminService $adminService)
+    public function __construct(ArticleService $articleService, UserService $userService)
     {
         $this->articleService = $articleService;
-        $this->adminService = $adminService;
+        $this->userService = $userService;
     }
 
     /**
      * @Route("/articles", name="admin_articles", methods={"GET", "POST"})
      */
-    public function articles(Request $request, ArticleRepository $articleRepository)
+    public function articles(Request $request, ArticleRepository $articleRepository): Response
     {
         $form = $this->createForm(FilterType::class);
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
@@ -58,13 +58,13 @@ class AdminController extends AbstractController
     /**
      * @Route("/article/{id}/edit", name="admin_article_edit", methods={"GET", "POST"})
      */
-    public function articleChangeStatus(Request $request, Article $article)
+    public function articleChangeStatus(Request $request, Article $article): Response
     {
         $form = $this->createForm(StatusType::class);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $status = $form->getData()['status'];
-            $this->articleService->setArticleStatus($article, $status);
+            $this->articleService->setStatus($article, $status);
 
             return $this->redirectToRoute('admin_articles');
         }
@@ -78,7 +78,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/users", name="admin_users")
      */
-    public function users(Request $request, UserRepository $userRepository)
+    public function users(Request $request, UserRepository $userRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $filter = [
@@ -102,27 +102,31 @@ class AdminController extends AbstractController
      */
     public function usersEmails(Request $request): JsonResponse
     {
-        $data = $this->adminService->searchUsersEmailsAsArray($request->get('query'));
+        $data = $this->userService->searchEmailsAsArray($request->get('query'));
 
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
     /**
-     * @Route("/user/{id}/block", name="admin_user_block", methods={"GET", "POST"})
+     * @Route("/user/{id}/block", name="admin_block_user", methods={"POST"})
      */
-    public function userBlock(User $user): Response
+    public function blockUser(Request $request, User $user): Response
     {
-        $this->adminService->blockUser($user);
+        if ($this->isCsrfTokenValid('block_user'.$user->getId(), $request->request->get('_token'))) {
+            $this->userService->block($user);
+        }
 
         return $this->redirectToRoute('admin_users');
     }
 
     /**
-     * @Route("/user/{id}/activate", name="admin_user_activate", methods={"GET", "POST"})
+     * @Route("/user/{id}/activate", name="admin_activate_user", methods={"POST"})
      */
-    public function userActivate(User $user): Response
+    public function activateUser(Request $request, User $user): Response
     {
-        $this->adminService->activateUser($user);
+        if ($this->isCsrfTokenValid('activate_user'.$user->getId(), $request->request->get('_token'))) {
+            $this->userService->activate($user);
+        }
 
         return $this->redirectToRoute('admin_users');
     }

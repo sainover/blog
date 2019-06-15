@@ -26,7 +26,7 @@ class ArticleService
         $this->regardRepository = $regardRepository;
     }
 
-    public function setArticleStatus(Article $article, string $status): void
+    public function setStatus(Article $article, string $status): void
     {
         $article->setStatus($status);
         if (Article::STATUS_PUBLISHED === $status) {
@@ -36,20 +36,20 @@ class ArticleService
         $this->manager->flush();
     }
 
-    public function articleSendToModeration(Article $article): void
+    public function sendToModeration(Article $article): void
     {
         $article->setStatus(Article::STATUS_MODERATION);
         $this->manager->persist($article);
         $this->manager->flush();
     }
 
-    public function removeArticle(Article $article): void
+    public function remove(Article $article): void
     {
         $this->manager->remove($article);
         $this->manager->flush();
     }
 
-    public function createArticle(Article $article): void
+    public function create(Article $article): void
     {
         $user = $this->security->getUser();
 
@@ -60,7 +60,7 @@ class ArticleService
         $this->manager->flush();
     }
 
-    public function toggleRegardArticle(Article $article, bool $value): int
+    public function toggleRegard(Article $article, bool $value): int
     {
         $user = $this->security->getUser();
 
@@ -83,10 +83,27 @@ class ArticleService
 
         $this->manager->flush();
 
-        return $article->getRating();
+        return $this->updateRating($article);
     }
 
-    public function getArticleTags(Article $article): array
+    public function updateRating(Article $article): int
+    {
+        $rating = 0;
+
+        $regards = $article->getRegards();
+        foreach($regards as $regard) {
+            $rating += $regard->getValue() ? 1 : -1;
+        }
+
+        $article->setRating($rating);
+
+        $this->manager->persist($article);
+        $this->manager->flush();
+
+        return $rating;
+    }
+
+    public function getTags(Article $article): array
     {
         $data['results'] = [];
 

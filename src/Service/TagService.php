@@ -15,7 +15,7 @@ class TagService
         $this->tagRepository = $tagRepository;
     }
 
-    public function getTagsAsArray()
+    public function getAllAsArray()
     {
         $data['results'] = [];
 

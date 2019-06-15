@@ -66,7 +66,7 @@ $(document).ready(() => {
         toggleRegard(true);
     })
 
-    $('input.autocomplete_input').after(`<ul class="autocomplete_options"></ul>`);
+    $('.autocomplete_input').after('<ul class="autocomplete_options"></ul>');
 
     $('input.autocomplete_input').on('input', function(e) {
         $.ajax({
@@ -74,16 +74,13 @@ $(document).ready(() => {
             url: `/admin/users/emails/?query=${query}`,
             datatype: 'json',
         }).done(data => {
-
             const $list = $('.autocomplete_options');
 
             query = $(this).val();
-            const height = $(this).css('height');
-            const width = $(this).css('width');
 
-            $list.css('height', height);
-            $list.css('top', height);
-            $list.css('width', width);
+            $list.css('heght', $(this).css('height'));
+            $list.css('top', $(this).height() + $(this).position().top + 'px');
+            $list.css('width', $(this).css('width'));
 
             $list.empty();
             if (data.length == 0) {

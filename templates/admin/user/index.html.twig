@@ -41,9 +41,13 @@
       {% if constant('ROLE_ADMIN', user) in user.roles or user.status == constant('STATUS_NOT_VERIFIED', user) %}
         -
       {% elseif user.status == constant('STATUS_BLOCKED', user) %}
-        <a href="{{ path('admin_user_activate', {id : user.id}) }}">Activate</a>
+        {{ include('admin/user/_action_user_form.html.twig', {
+          'action' : 'activate',
+          'action_path' : 'admin_activate_user',
+          'action_token' : 'activate_user',
+        }) }}
       {% elseif user.status == constant('STATUS_ACTIVE', user)  %}
-        <a href="{{ path('admin_user_block', {id : user.id}) }}">Block</a>
+        {{ include('admin/user/_action_user_form.html.twig') }}
       {% endif %}
       </td>
     {% endfor %}
