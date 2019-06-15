@@ -23,3 +23,13 @@ body {
 .autocomplete_options .focus {
     background: gray;
 }
+
+.article_footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.article_socials {
+    display: flex;
+    flex-direction: row;
+}

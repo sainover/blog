@@ -1,3 +1,3 @@
 {{ form_start(form) }}
-    <button class="btn btn-primary mt-3">{{ button_label|default('Create') }}</button>
+    {{ form_widget(form.submit, {'label': button_label|default('Create') }) }}
 {{ form_end(form) }}

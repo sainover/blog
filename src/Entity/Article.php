@@ -64,7 +64,7 @@ class Article
      *      targetEntity="App\Entity\Comment",
      *      mappedBy="target",
      *      orphanRemoval=true,
-     *      cascade={"persist"}
+     *      cascade={"persist", "remove"}
      * )
      */
     private $comments;
@@ -102,7 +102,7 @@ class Article
      *      targetEntity="App\Entity\Regard",
      *      mappedBy="target",
      *      orphanRemoval=true,
-     *      cascade={"persist"}
+     *      cascade={"persist", "remove"}
      * )
      */
     private $regards;

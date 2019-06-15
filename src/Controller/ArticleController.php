@@ -10,6 +10,7 @@ use App\Entity\Regard;
 use App\Form\ArticleType;
 use App\Form\CommentType;
 use App\Repository\ArticleRepository;
+use App\Repository\TagRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
@@ -34,11 +35,14 @@ class ArticleController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(Request $request, ArticleRepository $articleRepository): Response
-    {
+    public function index(
+        Request $request,
+        ArticleRepository $articleRepository,
+        TagRepository $tagRepository
+    ): Response {
         $articleFilter = [
             'page' => $request->query->getInt('page', 1),
-            'tag' => $request->query->get('tag'),
+            'tag' => $tagRepository->findByName($request->query->get('tag')),
         ];
 
         $articles = $articleRepository->findForHomePage($articleFilter);

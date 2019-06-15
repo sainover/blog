@@ -1,9 +1,11 @@
-<form method="post" class="article_regard" action="{{ path('article_like', {'id' : article.id}) }}">
-    <input type="hidden" name="article_id" value="{{ article.id }}">
-    <input type="submit" class="btn btn-primary" name="article_like" value="+">
-</form>
-<span id="article{{ article.id }}_rating">{{ article.rating }}</span>
-<form method="post" class="article_regard" action="{{ path('article_dislike', {'id' : article.id}) }}">
-    <input type="hidden" name="article_id" value="{{ article.id }}">
-    <input type="submit" class="btn btn-primary" name="article_dislike" value="-">
-</form>
+<div class="article_socials">
+    <form method="post" class="article_regard" action="{{ path('article_like', {'id' : article.id}) }}">
+        <input type="hidden" name="article_id" value="{{ article.id }}">
+        <input type="submit" class="btn btn-primary" name="article_like" value="+">
+    </form>
+    <span class="m-2" id="article{{ article.id }}_rating">{{ article.rating }}</span>
+    <form method="post" class="article_regard" action="{{ path('article_dislike', {'id' : article.id}) }}">
+        <input type="hidden" name="article_id" value="{{ article.id }}">
+        <input type="submit" class="btn btn-primary" name="article_dislike" value="-">
+    </form>
+</div>

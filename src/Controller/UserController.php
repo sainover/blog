@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Article;
 use App\Repository\ArticleRepository;
 use App\Service\ArticleService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
