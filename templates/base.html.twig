@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<title>{% block title %}Welcome!{% endblock %}</title>
 	{% block stylesheets %}
-		<link href="{{ asset('css/bootstrap.min.css') }}" rel='stylesheet' type='text/css'>
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+		{{ encore_entry_link_tags('app') }}
+		<link href="https://unpkg.com/ionicons@4.5.9-1/dist/css/ionicons.min.css" rel="stylesheet">
 	{% endblock %}
 </head>
 <body>
@@ -16,57 +16,7 @@
 	</div>
 
 	{% block javascripts %}
-	<script src="{{ asset('js/jquery-3.4.1.min.js') }}"></script>
-	<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-	<script src="https://unpkg.com/ionicons@4.5.5/dist/ionicons.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
-
-	<script type="text/javascript">
-
-	const setTags = (e) => {
-		id = e.parentNode.id;
-
-		$.ajax({
-			type: 'GET',
-			url: `/article/${id}/tags`,
-			datatype: 'json',
-		}).done(response => {
-			const data = response['results'];
-			data.forEach(element => {
-				let option = new Option(element.text, element.id, true, true);
-				e.append(option);
-				$('.tags').trigger();
-			});
-		})
-	}
-
-	const toggleRegard= (url, id) => {
-		const elem = $(`#article${id}_rating`)
-		$.ajax({
-			type: 'PUT',
-			url: url,
-			datatype: 'json',
-			async: true,
-			success: response => {
-				elem.text(response)
-			}
-		})
-	}
-
-	$('.tags').select2({
-		placeholder: 'Tags',
-		ajax: {
-			url: '/tags',
-			dataType: 'json'
-		}
-	});
-
-	$('.article_tags').each(function() {
-		setTags($(this)[0]);
-	});
-
-	</script>
+		{{ encore_entry_script_tags('app') }}
 	{% endblock %}
-
 </body>
 </html>

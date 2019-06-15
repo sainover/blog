@@ -156,7 +156,7 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/article/{id}/regard/like", name="article_like", methods={"PUT"})
+     * @Route("/article/{id}/regard/like", name="article_like", methods={"POST"})
      */
     public function like(Article $article): JsonResponse
     {
@@ -166,7 +166,7 @@ class ArticleController extends AbstractController
     }
 
     /**
-     * @Route("/article/{id}/regard/dislike", name="article_dislike", methods={"PUT"})
+     * @Route("/article/{id}/regard/dislike", name="article_dislike", methods={"POST"})
      */
     public function dislike(Article $article): JsonResponse
     {
