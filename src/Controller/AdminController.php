@@ -35,28 +35,17 @@ class AdminController extends AbstractController
     /**
      * @Route("/articles", name="admin_articles", methods={"GET", "POST"})
      */
-    public function adminArticles(Request $request, ArticleRepository $articleRepository)
+    public function articles(Request $request, ArticleRepository $articleRepository)
     {
-        $filter = [
-            'page' => $request->query->getInt('page', 1),
-            'status' => null,
-            'email' => null,
-            'dateFrom' => null,
-            'dateTo' => null,
-        ];
-
         $form = $this->createForm(FilterType::class);
-
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $filter['status'] = $form->getData()['status'];
-            $filter['email'] = $form->getData()['email'];
-            $filter['dateFrom'] = $form->getData()['dateFrom'];
-            $filter['dateTo'] = $form->getData()['dateTo'];
+            $filter = $form->getData();
         }
 
-        $articles = $articleRepository->findForAdminpe($filter);
+        $filter['page'] = $request->query->getInt('page', 1);
 
-        $maxPages = ceil(count($articles) / Article::COUNT_ON_PAGE);
+        $articles = $articleRepository->findForAdminPage($filter);
+        $maxPages = ceil(count($articles) / $articles->getQuery()->getMaxResults());
 
         return $this->render('admin/article/index.html.twig', [
             'form' => $form->createView(),
@@ -69,7 +58,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/article/{id}/edit", name="admin_article_edit", methods={"GET", "POST"})
      */
-    public function adminArticleChangeStatus(Request $request, Article $article)
+    public function articleChangeStatus(Request $request, Article $article)
     {
         $form = $this->createForm(StatusType::class);
 
@@ -89,7 +78,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/users", name="admin_users")
      */
-    public function adminUsers(Request $request, UserRepository $userRepository)
+    public function users(Request $request, UserRepository $userRepository)
     {
         $page = $request->query->getInt('page', 1);
         $filter = [
@@ -98,8 +87,8 @@ class AdminController extends AbstractController
             'orderType' => $request->get('sortType'),
         ];
 
-        $users = $userRepository->findForAdminpe($page, $filter);
-        $maxPages = ceil(count($users) / User::COUNT_ON_PAGE);
+        $users = $userRepository->findForAdminPage($page, $filter);
+        $maxPages = ceil(count($users) / $users->getQuery()->getMaxResults());
 
         return $this->render('admin/user/index.html.twig', [
             'thisPage' => $page,
@@ -111,7 +100,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/users/emails", name="admin_users_emails")
      */
-    public function adminUsersEmails(Request $request): JsonResponse
+    public function usersEmails(Request $request): JsonResponse
     {
         $data = $this->adminService->searchUsersEmailsAsArray($request->get('query'));
 
@@ -121,7 +110,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/user/{id}/block", name="admin_user_block", methods={"GET", "POST"})
      */
-    public function adminUserBlock(User $user): Response
+    public function userBlock(User $user): Response
     {
         $this->adminService->blockUser($user);
 
@@ -131,7 +120,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/user/{id}/activate", name="admin_user_activate", methods={"GET", "POST"})
      */
-    public function adminUserActivate(User $user): Response
+    public function userActivate(User $user): Response
     {
         $this->adminService->activateUser($user);
 

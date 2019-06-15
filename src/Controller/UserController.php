@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Article;
 use App\Repository\ArticleRepository;
 use App\Service\ArticleService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +32,7 @@ class UserController extends AbstractController
         $user = $this->getUser();
 
         $userArticles = $articleRepository->findByUser($page, $user);
-        $maxPages = ceil(count($userArticles) / Article::COUNT_ON_PAGE);
+        $maxPages = ceil(count($userArticles) / $userArticles->getQuery()->getMaxResults());
 
         return $this->render('user/index.html.twig', [
             'user' => $user,

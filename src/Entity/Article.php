@@ -54,15 +54,8 @@ class Article
 
     /**
      * @ORM\Column(type="text")
-     * @Assert\NotBlank(
-     *      message = "Content cannot be empty"
-     * )
-     * @Assert\Length(
-     *      min = 32,
-     *      max = 2048,
-     *      minMessage = "Content must be at least {{ limit }} characters long",
-     *      maxMessage = "Content cannot be longer than {{ limit }} characters"
-     * )
+     * @Assert\NotBlank
+     * @Assert\Length(min = 32, max = 2048)
      */
     private $content;
 
@@ -71,22 +64,15 @@ class Article
      *      targetEntity="App\Entity\Comment",
      *      mappedBy="target",
      *      orphanRemoval=true,
-     *      cascade={"persist"}
+     *      cascade={"persist", "remove"}
      * )
      */
     private $comments;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(
-     *      message = "Title cannot be empty"
-     * )
-     * @Assert\Length(
-     *      min = 2,
-     *      max = 512,
-     *      minMessage = "Title must be at least {{ limit }} characters long",
-     *      maxMessage = "Title cannot be longer than {{ limit }} characters"
-     * )
+     * @Assert\NotBlank
+     * @Assert\Length(min = 2, max = 512)
      */
     private $title;
 
@@ -116,7 +102,7 @@ class Article
      *      targetEntity="App\Entity\Regard",
      *      mappedBy="target",
      *      orphanRemoval=true,
-     *      cascade={"persist"}
+     *      cascade={"persist", "remove"}
      * )
      */
     private $regards;
@@ -284,7 +270,6 @@ class Article
     {
         if ($this->regards->contains($regard)) {
             $this->regards->removeElement($regard);
-
             if ($regard->getTarget() === $this) {
                 $regard->setTarget(null);
             }
@@ -295,21 +280,21 @@ class Article
 
     public function isEditable(): bool
     {
-        return self::STATUS_DRAFT === $this->getStatus();
+        return self::STATUS_DRAFT === $this->status;
     }
 
     public function isViewable(): bool
     {
-        return self::STATUS_PUBLISHED === $this->getStatus();
+        return self::STATUS_PUBLISHED === $this->status;
     }
 
     public function isAuthor(User $user): bool
     {
-        return $this->getAuthor() === $user;
+        return $this->author === $user;
     }
 
     public function isDeletable(): bool
     {
-        return in_array($this->getStatus(), [self::STATUS_PUBLISHED, self::STATUS_DECLINED]);
+        return in_array($this->status, [self::STATUS_PUBLISHED, self::STATUS_DECLINED]);
     }
 }

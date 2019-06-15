@@ -11,9 +11,6 @@
     <span class="mt-4 text-muted">
         {{ article.content|raw }}
     </span>
-    {{ form_start(form) }}
-        {{ form_widget(form.status) }}
-        <button class="btn btn-primary mt-3">Save</button>
-    {{ form_end(form) }}
+    {{ form(form) }}
 </article>
 {% endblock %}

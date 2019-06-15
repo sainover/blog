@@ -13,9 +13,8 @@ class ArticleVoter extends Voter
 {
     public const DELETE = 'delete';
     public const EDIT = 'edit';
-    public const COMMENT = 'comment';
 
-    private const ACTIONS = [self::DELETE, self::EDIT, self::COMMENT];
+    private const ACTIONS = [self::DELETE, self::EDIT];
 
     protected function supports($attributes, $subject): bool
     {
@@ -37,9 +36,6 @@ class ArticleVoter extends Voter
             case self::DELETE:
                 return $this->canDelete($article, $user);
                 break;
-            case self::COMMENT:
-                return $this->canComment($article, $user);
-                break;
         }
 
         throw new \LogicException('This code should not be reached!');
@@ -53,10 +49,5 @@ class ArticleVoter extends Voter
     public function canDelete(Article $article, User $user): bool
     {
         return $article->isAuthor($user) && $article->isDeletable();
-    }
-
-    public function canComment(Article $article, User $user)
-    {
-        return true;
     }
 }

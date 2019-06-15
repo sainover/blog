@@ -15,6 +15,7 @@ class CommentType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->setMethod('POST')
             ->add('content')
             ->add('submit', SubmitType::class, ['label' => 'Submit'])
         ;

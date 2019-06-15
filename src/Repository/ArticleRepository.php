@@ -23,7 +23,7 @@ class ArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, Article::class);
     }
 
-    public function findForHomepe($filter): Paginator
+    public function findForHomePage($filter): Paginator
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.author', 'author')->addSelect('author')
@@ -40,7 +40,7 @@ class ArticleRepository extends ServiceEntityRepository
         return $this->paginate($qb->getQuery(), $filter['page'], Article::COUNT_ON_PAGE);
     }
 
-    public function findForArticlepe($id): ?Article
+    public function findForArticlePage(int $id): ?Article
     {
         return $this->createQueryBuilder('a')
             ->where('a.id = :id')->setParameter('id', $id)
@@ -54,27 +54,28 @@ class ArticleRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findForAdminpe($filter): Paginator
+    public function findForAdminPage($filter): Paginator
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.author', 'author')->addSelect('author')
         ;
 
-        if (null !== $filter['status'] && in_array($filter['status'], Article::STATUSES_VIEWABLE_TO_ADMIN)) {
-            $qb->andWhere('a.status = :status')->setParameter('status', $filter['status']);
+        if (isset($filter['status']) && in_array($filter['status'], Article::STATUSES_VIEWABLE_TO_ADMIN)) {
+            $statuses = $filter['status'];
         } else {
-            $qb->andWhere('a.status IN (:statuses)')->setParameter('statuses', array_values(Article::STATUSES_VIEWABLE_TO_ADMIN));
+            $statuses = array_values(Article::STATUSES_VIEWABLE_TO_ADMIN);
         }
+        $qb->andWhere('a.status IN (:statuses)')->setParameter('statuses', $statuses);
 
-        if (null !== $filter['email']) {
+        if (isset($filter['email'])) {
             $qb->andWhere('author.email LIKE :query')->setParameter('query', '%'.$filter['email'].'%');
         }
 
-        if (null !== $filter['dateFrom']) {
+        if (isset($filter['dateFrom'])) {
             $qb->andWhere('a.publishedAt > :dateFrom')->setParameter('dateFrom', $filter['dateFrom']);
         }
 
-        if (null !== $filter['dateTo']) {
+        if (isset($filter['dateTo'])) {
             $qb->andWhere('a.publishedAd < :dateTo')->setParameter('dateTo', $filter['dateTo']);
         }
 

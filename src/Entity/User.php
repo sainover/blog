@@ -37,15 +37,8 @@ class User implements UserInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\Email
-     * @Assert\NotBlank(
-     *      message = "Email cannot be empty"
-     * )
-     * @Assert\Length(
-     *      min = 2,
-     *      max = 255,
-     *      minMessage = "Your email must be at least {{ limit }} characters long",
-     *      maxMessage = "Your email cannot be longer than {{ limit }} characters"
-     * )
+     * @Assert\NotBlank
+     * @Assert\Length(min = 2, max = 255)
      */
     private $email;
 
@@ -58,15 +51,8 @@ class User implements UserInterface
     /**
      * @var string
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(
-     *      message = "Email cannot be empty"
-     * )
-     * @Assert\Length(
-     *      min = 2,
-     *      max = 255,
-     *      minMessage = "Your full name must be at least {{ limit }} characters long",
-     *      maxMessage = "Your full name cannot be longer than {{ limit }} characters"
-     * )
+     * @Assert\NotBlank
+     * @Assert\Length(min = 2, max = 255)
      */
     private $fullName;
 
@@ -89,13 +75,8 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Assert\NotBlank(message = "Please enter a password")
-     * @Assert\Length(
-     *      min = 6,
-     *      max = 4096,
-     *      minMessage = "Your password should be at least {{ limit }} characters",
-     *      maxMessage = "Your password cannot be longer than {{ limit }} characters",
-     * )
+     * @Assert\NotBlank
+     * @Assert\Length(min = 6, max = 4096)
      */
     private $password;
 

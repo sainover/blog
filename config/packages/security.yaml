@@ -39,6 +39,7 @@ security:
         - { path: ^/article/\d+/edit, roles: ROLE_USER }
         - { path: ^/article/\d+/regard, roles: ROLE_USER }
         - { path: ^/article/\d+/delete, roles: ROLE_USER }
+        - { path: ^/article/\d+/comment, roles: ROLE_USER }
         - { path: ^/user*, roles: ROLE_USER }
     
     role_hierarchy:
