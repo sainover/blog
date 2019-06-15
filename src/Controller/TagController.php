@@ -16,6 +16,6 @@ class TagController extends AbstractController
      */
     public function tags(TagService $tagService): JsonResponse
     {
-        return new JsonResponse($tagService->getTagsAsArray(), Response::HTTP_OK);
+        return new JsonResponse($tagService->getAllAsArray(), Response::HTTP_OK);
     }
 }

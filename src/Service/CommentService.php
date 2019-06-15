@@ -20,7 +20,7 @@ class CommentService
         $this->security = $security;
     }
 
-    public function createComment(Comment $comment, Article $article): void
+    public function create(Comment $comment, Article $article): void
     {
         $user = $this->security->getUser();
 

@@ -62,7 +62,9 @@ class ArticleController extends AbstractController
     {
         $article = $articleRepository->findForArticlePage($id);
 
-        $form = $this->createForm(CommentType::class);
+        $form = $this->createForm(CommentType::class, null, [
+            'action' => $this->generateUrl('article_comment', ['id' => $article->getId()]),
+        ]);
 
         return $this->render('article/show.html.twig', [
             'article' => $article,
@@ -77,10 +79,9 @@ class ArticleController extends AbstractController
     {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
-        $form->setAction($this->generateUrl('article_comment', ['id' => $article->getId()]));
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->commentService->createComment($comment, $article);
+            $this->commentService->create($comment, $article);
 
             $this->addFlash(
                 'notice',
@@ -100,7 +101,7 @@ class ArticleController extends AbstractController
         $form = $this->createForm(ArticleType::class, $article);
 
         if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
-            $this->articleService->createArticle($article);
+            $this->articleService->create($article);
 
             return $this->redirectToRoute('user_index');
         }
@@ -139,7 +140,7 @@ class ArticleController extends AbstractController
         $this->denyAccessUnlessGranted(ArticleVoter::DELETE, $article);
 
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {
-            $this->articleService->removeArticle($article);
+            $this->articleService->remove($article);
         }
 
         return $this->redirectToRoute('user_index');
@@ -153,7 +154,7 @@ class ArticleController extends AbstractController
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
         if ($this->isCsrfTokenValid('send-to-moderation'.$article->getId(), $request->request->get('_token'))) {
-            $this->articleService->articleSendToModeration($article);
+            $this->articleService->sendToModeration($article);
         }
 
         return $this->redirectToRoute('user_index');
@@ -164,7 +165,7 @@ class ArticleController extends AbstractController
      */
     public function like(Article $article): JsonResponse
     {
-        $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::LIKE);
+        $ratingValue = $this->articleService->toggleRegard($article, Regard::LIKE);
 
         return new JsonResponse($ratingValue, Response::HTTP_OK);
     }
@@ -174,7 +175,7 @@ class ArticleController extends AbstractController
      */
     public function dislike(Article $article): JsonResponse
     {
-        $ratingValue = $this->articleService->toggleRegardArticle($article, Regard::DISLIKE);
+        $ratingValue = $this->articleService->toggleRegard($article, Regard::DISLIKE);
 
         return new JsonResponse($ratingValue, Response::HTTP_OK);
     }
@@ -184,6 +185,6 @@ class ArticleController extends AbstractController
      */
     public function tags(Article $article): JsonResponse
     {
-        return new JsonResponse($this->articleService->getArticleTags($article), Response::HTTP_OK);
+        return new JsonResponse($this->articleService->getTags($article), Response::HTTP_OK);
     }
 }

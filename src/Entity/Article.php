@@ -283,11 +283,6 @@ class Article
         return self::STATUS_DRAFT === $this->status;
     }
 
-    public function isViewable(): bool
-    {
-        return self::STATUS_PUBLISHED === $this->status;
-    }
-
     public function isAuthor(User $user): bool
     {
         return $this->author === $user;
