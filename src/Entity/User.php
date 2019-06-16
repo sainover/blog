@@ -88,6 +88,9 @@ class User implements UserInterface
 
     public function __construct()
     {
+        $this->roles = [self::ROLE_USER];
+        $this->status = self::STATUS_NOT_VERIFIED;
+        $this->rating = 0;
         $this->articles = new ArrayCollection();
     }
 
