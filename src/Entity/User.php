@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface
 {
     public const COUNT_ON_PAGE = 10;
+    public const COUNT_TOP = 5;
 
     public const ROLE_USER = 'ROLE_USER';
     public const ROLE_ADMIN = 'ROLE_ADMIN';
@@ -79,6 +80,11 @@ class User implements UserInterface
      * @Assert\Length(min = 6, max = 4096)
      */
     private $password;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $rating;
 
     public function __construct()
     {
@@ -216,12 +222,7 @@ class User implements UserInterface
 
     public function getRating(): int
     {
-        $rating = 0;
-        foreach ($this->articles as $article) {
-            $rating += $article->getRating();
-        }
-
-        return $rating;
+        return $this->rating;
     }
 
     public function getStatus(): ?string
@@ -244,5 +245,12 @@ class User implements UserInterface
     public function isBlocked(): bool
     {
         return self::STATUS_BLOCKED === $this->getStatus();
+    }
+
+    public function setRating(int $rating): self
+    {
+        $this->rating = $rating;
+
+        return $this;
     }
 }

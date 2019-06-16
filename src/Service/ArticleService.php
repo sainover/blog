@@ -15,15 +15,18 @@ class ArticleService
     private $manager;
     private $regardRepository;
     private $security;
+    private $userService;
 
     public function __construct(
         ObjectManager $manager,
         Security $security,
-        RegardRepository $regardRepository
+        RegardRepository $regardRepository,
+        UserService $userService
     ) {
         $this->manager = $manager;
         $this->security = $security;
         $this->regardRepository = $regardRepository;
+        $this->userService = $userService;
     }
 
     public function setStatus(Article $article, string $status): void
@@ -96,9 +99,10 @@ class ArticleService
         }
 
         $article->setRating($rating);
-
         $this->manager->persist($article);
         $this->manager->flush();
+
+        $this->userService->updateRating($article->getAuthor());
 
         return $rating;
     }

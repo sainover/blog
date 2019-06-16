@@ -41,11 +41,35 @@ class UserService
         );
         $user->setToken($this->tokenGeneratorService->generate());
         $user->setStatus(User::STATUS_NOT_VERIFIED);
+        $user->setRating(0);
 
         $this->manager->persist($user);
         $this->manager->flush();
 
         $this->emailsService->sendEmailConfirmation($user);
+    }
+
+    public function passwordForgot(User $user): void
+    {
+        $user->setToken($this->tokenGeneratorService->generate());
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        $this->emailsService->sendPasswordResetting($user);
+    }
+
+    public function passwordReset(User $user): void
+    {
+        $user->setToken(null);
+        $user->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $user,
+                $user->getPassword()
+            )
+        );
+
+        $this->manager->persist($user);
+        $this->manager->flush();
     }
 
     public function confirm(User $user): void
@@ -81,5 +105,21 @@ class UserService
         }
 
         return $data;
+    }
+
+    public function updateRating(User $user): int
+    {
+        $articles = $user->getArticles();
+
+        $rating = 0;
+        foreach ($articles as $article) {
+            $rating += $article->getRating();
+        }
+
+        $user->setRating($rating);
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $rating;
     }
 }

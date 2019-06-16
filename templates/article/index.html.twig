@@ -3,8 +3,8 @@
 {% block title %}Index!{% endblock %}
 
 {% block body %}
-<div>
-  <div>
+<div class="row">
+  <div class="col-8">
     {% for article in articles %}
       <div class="card mt-5">
         <h5 class="card-header">{{ article.title }}</h5>
@@ -22,9 +22,31 @@
         </div>
       </div>
     {% endfor %}
+    {{ include('includes/_pagination.html.twig', {'pathName' : 'index'}) }}
   </div>
 
-  {{ include('includes/_pagination.html.twig', {'pathName' : 'index'}) }}
+  <div class="col-4">
+
+    <div class="card mt-5">
+      <div class="card-header">PUBLICATIONS TOP-5</div>
+      <div class="card-body">
+        {% for item in topArticles %}
+          <a href="{{ path('article_show', {'id' : item.id}) }}">
+            </p>{{ loop.index }}. {{ item.title }} ({{ item.rating }})</p>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card mt-5">
+      <div class="card-header">AUTHORS TOP-5</div>
+      <div class="card-body">
+        {% for item in topUsers %}
+          <p>{{ loop.index }}. {{ item.fullname }} ({{ item.rating }})</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
 </div>
 {% endblock %}

@@ -11,6 +11,7 @@ use App\Form\ArticleType;
 use App\Form\CommentType;
 use App\Repository\ArticleRepository;
 use App\Repository\TagRepository;
+use App\Repository\UserRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
@@ -38,7 +39,8 @@ class ArticleController extends AbstractController
     public function index(
         Request $request,
         ArticleRepository $articleRepository,
-        TagRepository $tagRepository
+        TagRepository $tagRepository,
+        UserRepository $userRepository
     ): Response {
         $articleFilter = [
             'page' => $request->query->getInt('page', 1),
@@ -52,6 +54,8 @@ class ArticleController extends AbstractController
             'thisPage' => $articleFilter['page'],
             'maxPages' => $maxPages,
             'articles' => $articles,
+            'topArticles' => $articleRepository->findTop(),
+            'topUsers' => $userRepository->findTop(),
         ]);
     }
 
@@ -119,9 +123,8 @@ class ArticleController extends AbstractController
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
         $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $manager->flush();
 
             return $this->redirectToRoute('user_index');

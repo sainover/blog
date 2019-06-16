@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Article
 {
     public const COUNT_ON_PAGE = 10;
+    public const COUNT_TOP = 5;
 
     public const STATUS_DRAFT = 'Draft';
     public const STATUS_MODERATION = 'On moderation';

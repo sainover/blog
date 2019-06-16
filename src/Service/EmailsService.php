@@ -38,4 +38,24 @@ class EmailsService
             throw new RuntimeException('An error occurred while sending the message.');
         }
     }
+
+    public function sendPasswordResetting(User $user)
+    {
+        $message = (new \Swift_Message('Password reset'))
+            ->setFrom('blog.noveo@gmail.com')
+            ->setTo($user->getEmail())
+            ->setBody(
+                $this->templating->render(
+                    'emails/password_resetting.html.twig', [
+                        'user' => $user,
+                    ]
+                ),
+                'text/html'
+            )
+        ;
+
+        if (0 === $this->mailer->send($message)) {
+            throw new RuntimeException('An error occurred while sending the message.');
+        }
+    }
 }

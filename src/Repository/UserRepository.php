@@ -54,6 +54,16 @@ class UserRepository extends ServiceEntityRepository
         return $this->paginate($qb->getQuery(), $page, User::COUNT_ON_PAGE);
     }
 
+    public function findTop(int $limit = User::COUNT_TOP): array
+    {
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.rating', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
     public function searchByEmail($query): array
     {
         return $this->createQueryBuilder('u')
