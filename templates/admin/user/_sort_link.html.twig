@@ -1,6 +1,7 @@
-{% if app.request.get('sortBy') == null or app.request.get('sortType') == null or key != app.request.get('sortBy') or type != app.request.get('sortType') %}
+{% if app.request.get('sortBy') == null or app.request.get('sortType') == null 
+    or key != app.request.get('sortBy') or type != app.request.get('sortType') %}
 <a href="
-    {{ path('admin_users', {
+    {{ path('admin_user_index', {
         query : app.request.get('query'),
         sortBy : key,
         sortType : type,
@@ -8,7 +9,7 @@
 ">
 {% else %}
 <a href="
-    {{ path('admin_users', {
+    {{ path('admin_user_index', {
         query: app.request.get('query'),
     }) }}
 "class="text-muted">

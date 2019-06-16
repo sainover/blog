@@ -1,7 +1,0 @@
-<form method="post" action="{{ path(action_path|default('admin_block_user'), {'id': user.id}) }}" 
-    onsubmit="return confirm('Are you sure you want to {{ action|default('block') }} this user?');"
->
-    <input type="hidden" name="_method" value="POST">
-    <input type="hidden" name="_token" value="{{ csrf_token(action_token|default('block_user') ~ user.id) }}">
-    <button class="btn btn-primary" type="submit">{{ action|default('block') }}</button>
-</form>

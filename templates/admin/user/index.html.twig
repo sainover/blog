@@ -4,9 +4,10 @@
 
 {% block body %}
 <div class="row justify-content-end">
-  <form class="col-6 mb-3 mt-3 autocomplete" action="{{ path('admin_users') }}" method="GET">
+  <form class="col-6 mb-3 mt-3 autocomplete" action="{{ path('admin_user_index') }}" method="GET">
     <div class="input-group" style="position: relative;">
-      <input type="text" class="form-contro autocomplete_input" autocomplete="off" name="query" placeholder="... Search by email ..." value="{{ app.request.get('query') }}">
+      <input type="text" class="form-contro autocomplete_input" autocomplete="off" 
+        name="query" placeholder="... Search by email ..." value="{{ app.request.get('query') }}">
       <div class="input-group-append">
         <button class="btn btn-outline-secondary" type="submit">Button</button>
       </div>
@@ -41,18 +42,17 @@
       {% if constant('ROLE_ADMIN', user) in user.roles or user.status == constant('STATUS_NOT_VERIFIED', user) %}
         -
       {% elseif user.status == constant('STATUS_BLOCKED', user) %}
-        {{ include('admin/user/_action_user_form.html.twig', {
+        {{ include('admin/user/_action_form.html.twig', {
           'action' : 'activate',
-          'action_path' : 'admin_activate_user',
-          'action_token' : 'activate_user',
+          'action_path' : 'admin_user_activate',
         }) }}
       {% elseif user.status == constant('STATUS_ACTIVE', user)  %}
-        {{ include('admin/user/_action_user_form.html.twig') }}
+        {{ include('admin/user/_action_form.html.twig') }}
       {% endif %}
       </td>
     {% endfor %}
   </tbody>
 </table>
 
-{{ include('includes/_pagination.html.twig', {'pathName' : 'admin_users'}) }}
+{{ include('includes/_pagination.html.twig', {'pathName' : 'admin_user_index'}) }}
 {% endblock %}

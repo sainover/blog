@@ -23,11 +23,11 @@
       <td>{{ article.title }}</td>
       <td>{{ article.status }}</td>
       <td>
-        <a href="{{ path('admin_article_edit', {id: article.id}) }}">Edit</a>
+        <a href="{{ path('admin_article_status-change', {id: article.id}) }}">Edit</a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-{{ include('includes/_pagination.html.twig', {'pathName' : 'admin_articles'}) }}
+{{ include('includes/_pagination.html.twig', {'pathName' : 'admin_article_index'}) }}
 {% endblock %}
