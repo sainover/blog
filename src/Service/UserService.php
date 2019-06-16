@@ -40,8 +40,6 @@ class UserService
             )
         );
         $user->setToken($this->tokenGeneratorService->generate());
-        $user->setStatus(User::STATUS_NOT_VERIFIED);
-        $user->setRating(0);
 
         $this->manager->persist($user);
         $this->manager->flush();
