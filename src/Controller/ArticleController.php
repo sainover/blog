@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\UserRepository;
 
 class ArticleController extends AbstractController
 {
@@ -38,7 +39,8 @@ class ArticleController extends AbstractController
     public function index(
         Request $request,
         ArticleRepository $articleRepository,
-        TagRepository $tagRepository
+        TagRepository $tagRepository,
+        UserRepository $userRepository
     ): Response {
         $articleFilter = [
             'page' => $request->query->getInt('page', 1),
@@ -52,6 +54,8 @@ class ArticleController extends AbstractController
             'thisPage' => $articleFilter['page'],
             'maxPages' => $maxPages,
             'articles' => $articles,
+            'topArticles' => $articleRepository->findTop(),
+            'topUsers' => $userRepository->findTop(), 
         ]);
     }
 

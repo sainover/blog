@@ -23,6 +23,33 @@ class ArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, Article::class);
     }
 
+    public function findTop(int $limit = Article::COUNT_TOP): Array
+    {
+        return $this->createQueryBuilder('a')
+            ->orderBy('a.rating', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+        // /**
+    //  * @return Tag[] Returns an array of Tag objects
+    //  */
+    /*
+    public function findByExampleField($value)
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.exampleField = :val')
+            ->setParameter('val', $value)
+            ->orderBy('t.id', 'ASC')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    */
+
     public function findForHomePage($filter): Paginator
     {
         $qb = $this->createQueryBuilder('a')

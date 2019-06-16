@@ -41,6 +41,7 @@ class UserService
         );
         $user->setToken($this->tokenGeneratorService->generate());
         $user->setStatus(User::STATUS_NOT_VERIFIED);
+        $user->setRating(0);
 
         $this->manager->persist($user);
         $this->manager->flush();
@@ -81,5 +82,21 @@ class UserService
         }
 
         return $data;
+    }
+
+    public function updateRating(User $user): int
+    {
+        $articles = $user->getArticles();
+
+        $rating = 0;
+        foreach($articles as $article) {
+            $rating += $article->getRating();
+        }
+
+        $user->setRating($rating);
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return $rating;
     }
 }
