@@ -6,7 +6,6 @@ namespace App\Service;
 
 use App\Entity\Article;
 use App\Entity\Regard;
-use App\Service\UserService;
 use App\Repository\RegardRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Security;

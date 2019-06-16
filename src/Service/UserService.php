@@ -49,6 +49,29 @@ class UserService
         $this->emailsService->sendEmailConfirmation($user);
     }
 
+    public function passwordForgot(User $user): void
+    {
+        $user->setToken($this->tokenGeneratorService->generate());
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        $this->emailsService->sendPasswordResetting($user);
+    }
+
+    public function passwordReset(User $user): void
+    {
+        $user->setToken(null);
+        $user->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $user,
+                $user->getPassword()
+            )
+        );
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+    }
+
     public function confirm(User $user): void
     {
         $user->setToken(null);
@@ -89,7 +112,7 @@ class UserService
         $articles = $user->getArticles();
 
         $rating = 0;
-        foreach($articles as $article) {
+        foreach ($articles as $article) {
             $rating += $article->getRating();
         }
 

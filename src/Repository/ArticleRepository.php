@@ -23,7 +23,7 @@ class ArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, Article::class);
     }
 
-    public function findTop(int $limit = Article::COUNT_TOP): Array
+    public function findTop(int $limit = Article::COUNT_TOP): array
     {
         return $this->createQueryBuilder('a')
             ->orderBy('a.rating', 'DESC')
@@ -33,7 +33,7 @@ class ArticleRepository extends ServiceEntityRepository
         ;
     }
 
-        // /**
+    // /**
     //  * @return Tag[] Returns an array of Tag objects
     //  */
     /*

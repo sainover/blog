@@ -11,6 +11,7 @@ use App\Form\ArticleType;
 use App\Form\CommentType;
 use App\Repository\ArticleRepository;
 use App\Repository\TagRepository;
+use App\Repository\UserRepository;
 use App\Security\Voter\ArticleVoter;
 use App\Service\ArticleService;
 use App\Service\CommentService;
@@ -20,7 +21,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\UserRepository;
 
 class ArticleController extends AbstractController
 {
@@ -55,7 +55,7 @@ class ArticleController extends AbstractController
             'maxPages' => $maxPages,
             'articles' => $articles,
             'topArticles' => $articleRepository->findTop(),
-            'topUsers' => $userRepository->findTop(), 
+            'topUsers' => $userRepository->findTop(),
         ]);
     }
 
@@ -123,9 +123,8 @@ class ArticleController extends AbstractController
         $this->denyAccessUnlessGranted(ArticleVoter::EDIT, $article);
 
         $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->handleRequest($request)->isSubmitted() && $form->isValid()) {
             $manager->flush();
 
             return $this->redirectToRoute('user_index');
